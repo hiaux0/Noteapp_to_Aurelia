@@ -1,19 +1,17 @@
 
 import {contextMenu} from 'jquery-contextmenu'
-let inSty = require('./app_logic/inline_styles')
+import cm from './app_logic/context_menu/context_menu'
+import helper from './app_logic/helper_lib'
+
+let cm1 = require('./app_logic/context_menu/context_menu')
 
 export class App {
     constructor() {
     }
 
     multipleCalls() {
-        console.log(inSty)
-        let container = document.getElementById("container")
-        let box = {
-            border: "3px dotted blue"
-        }
-        inSty.addInlineStyle(container,box)
-    }
+        console.log(cm)
+    } 
 
 }
 

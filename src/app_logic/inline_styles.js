@@ -40,7 +40,7 @@ function addInlineStyle(selector, obj) {
  * @param  {[type]} obj [usually manage_styles, my costum dynamic styles]
  * @return {[type]}     [string for dynamic stylesheet]
  */
-let toStylesheet = function (obj) {
+function toStylesheet(obj) {
     let tempString = ''
     for (let selector of Object.keys(obj)) {
         // console.log(obj[selector]);
@@ -72,7 +72,7 @@ let toStylesheet = function (obj) {
  * @param  {[type]} obj [new style element]
  * @return {[type]}     [description]
  */
-let changeStyle = function (node, obj) {
+function changeStyle(node, obj) {
     let resultString = '';
     changeString = node.getAttribute('style');
     changeStyle.includes(Object.keys(obj));
