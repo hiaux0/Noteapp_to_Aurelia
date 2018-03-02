@@ -13,7 +13,7 @@ let cm_logic = {
         numCol: 3,
         appendChildsTo,
         changeGridColumns,
-        // listenForSlider,
+        listenForSlider,
         splitThisVertically,
         splitThisHorizontally
     },
@@ -95,22 +95,22 @@ function changeGridColumns(selector, number) {
 
 // #325
 // 
-// function listenForSlider() {
-//     // get slider and slider output
-//     let sliderOutput = doc.getElementById("sliderOutput")
-//     let contextMenuSlider = doc.getElementById('contextMenuSlider')
+function listenForSlider() {
+    // get slider and slider output
+    let sliderOutput = doc.getElementById("sliderOutput")
+    let contextMenuSlider = doc.getElementById('contextMenuSlider')
 
-//     // listener for changes, when changes happen, change the div
-//     contextMenuSlider.addEventListener("input", function (ev) {
-//         if (doc.getElementsByClassName("wrapper").length !== 0) {
-//             sliderOutput.innerHTML = ` ${contextMenuSlider.value}`
-//             let wrapper = doc.getElementsByClassName("wrapper")
-//             // change numCol value
-//             numCol = contextMenuSlider.value
-//             changeGridColumns(wrapper[0], numCol)
-//         }
-//     });
-// }
+    // listener for changes, when changes happen, change the div
+    contextMenuSlider.addEventListener("input", function (ev) {
+        if (doc.getElementsByClassName("wrapper").length !== 0) {
+            sliderOutput.innerHTML = ` ${contextMenuSlider.value}`
+            let wrapper = doc.getElementsByClassName("wrapper")
+            // change numCol value
+            numCol = contextMenuSlider.value
+            changeGridColumns(wrapper[0], numCol)
+        }
+    });
+}
 
 
 // #426, #724 ,#725
@@ -134,7 +134,7 @@ function splitThisVertically() {
     target.setAttribute("draggable", true)
 
     // add dynamic style to wrapper
-    _inSty.method.addInlineStyle(target, {
+    _inSty.addInlineStyle(target, {
         // "background-color": "lightgray",
         "display": "grid",
         "grid-template-columns": `repeat(${numCol}, 1fr)`
@@ -156,7 +156,7 @@ function splitThisHorizontally() {
     target.classList.add("dropable")
     target.setAttribute("draggable", true)
     // add dynamic style to wrapper
-    _inSty.method.addInlineStyle(target, {
+    _inSty.addInlineStyle(target, {
         // "background-color": "lightgray",
         "display": "grid"
     })
@@ -264,6 +264,7 @@ function changeToDiv() {
  * @return {[type]} [logic]
  */
 function changeToTextarea() {
+    console.log(target)
     if (!target) {
         return;
     }
