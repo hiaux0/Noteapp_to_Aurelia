@@ -1,0 +1,15 @@
+<template bindable="content, position, hasfocus">
+    <div 
+        class="dynamic-textarea dropable" 
+        contenteditable="true" 
+        draggable="true"
+        focus.bind = "hasfocus" 
+        
+        textcontent.bind="content"
+        css="position:absolute; left: ${position.x}px; top:${position.y}px;">
+       
+    </div>
+    <!-- <div> ${hasfocus}</div> -->
+                                                        <!-- Real time content update -->
+                                                        <!-- <div>${content}</div> -->
+</template>

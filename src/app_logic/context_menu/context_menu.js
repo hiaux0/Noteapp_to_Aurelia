@@ -39,20 +39,16 @@ const _cm_logic = require('./cm_logic')
                             name: "Vertical",
                             callback: _cm_logic.grid.splitThisVertically
                         },
-                        // range: {
-                        //     name: 'By',
-                        //     type: 'range',
-                        //     id: 'contextMenuSlider',
-                        //     // #425 be able to input min, max,step and value somehow
-                        //     options: { min: 1, max: 5, step: 1, },
-                        //     value: 3
-                        // }
+                        range: {
+                            name: 'By',
+                            type: 'range',
+                            id: 'contextMenuSlider',
+                            // #425 be able to input min, max,step and value somehow
+                            options: { min: 1, max: 5, step: 1, },
+                            value: 3
+                        }
                     }
                 },
-
-                /////////////////////////////////////////////////////////////////////////////////////////////////////////
-                // TODO: #323
-                // when activate: change current tag to another one
                 ChangeTagTo: {
                     name: "Change Tag to",
                     items: {
@@ -67,20 +63,11 @@ const _cm_logic = require('./cm_logic')
                         }
                     }
                 },
+
                 Sep: "--------------------------",
             },
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////
-            // events
-            events: {
-                show: function (itemKey, opt) {
-                    // console.log("changed? " + itemKey.commands.edit.name);
-                    // _cm_logic.grid.listenForSlider();
-                    // cm_logic.textmanipulation.displayCurrentTarget();
-
-                }
-            }
         });
-    });
+    }); 
 
 
     // end ======================================

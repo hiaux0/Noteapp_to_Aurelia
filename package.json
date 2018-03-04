@@ -1,5 +1,5 @@
 {
-  "name": "learning2",
+  "name": "learning3",
   "description": "An Aurelia client application.",
   "version": "0.1.0",
   "repository": {
@@ -11,6 +11,7 @@
     "aurelia-animator-css": "^1.0.2",
     "aurelia-bootstrapper": "^2.1.1",
     "bluebird": "^3.4.1",
+    "help": "^3.0.2",
     "jquery": "^3.3.1",
     "jquery-contextmenu": "^2.6.3",
     "requirejs": "^2.3.2",

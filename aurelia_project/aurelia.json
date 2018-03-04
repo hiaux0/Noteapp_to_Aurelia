@@ -87,9 +87,16 @@
             "resources": [
               "dist/jquery.contextMenu.min.css"
             ],
-            "deps": [ "jquery" ]
+            "deps": [
+              "jquery"
+            ]
           },
-          "jquery"
+          "jquery",
+          {
+            "name": "write-drag-drop",
+            "path": "./playground",
+            "main": "/playground/write-drag-drop"
+          }
         ]
       }
     ],
