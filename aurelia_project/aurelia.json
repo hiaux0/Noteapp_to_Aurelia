@@ -94,8 +94,8 @@
           "jquery",
           {
             "name": "write-drag-drop",
-            "path": "./playground",
-            "main": "/playground/write-drag-drop"
+            "path": "./app_logic/write_anywhere",
+            "main": "/write_anywhere/write-drag-drop"
           }
         ]
       }

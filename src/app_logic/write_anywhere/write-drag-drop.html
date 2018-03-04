@@ -1,0 +1,26 @@
+<template > 
+    <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
+    <require from="./dynamic_textarea/dynamic-textarea.html"></require>
+
+    <div 
+        id="container" 
+        click.delegate="multipleCalls($event)" 
+        class="dropable write-anywhere" 
+        >
+
+        <dynamic-textarea 
+            repeat.for="content of contentStorage" 
+            content.two-way="content.content"
+            position.bind="content.position"
+            hasfocus.bind="true"  
+        ></dynamic-textarea>
+
+    </div>
+
+</template>
+
+
+        <!-- test content of dynamic-textarea -->
+        <!-- <button click.delegate="logContent(content)" repeat.for="content of contentStorage">
+            Get info for area ${content.id}
+        </button> -->
