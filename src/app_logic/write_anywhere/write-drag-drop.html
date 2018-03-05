@@ -1,6 +1,7 @@
 <template > 
     <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
-    <require from="./dynamic_textarea/dynamic-textarea.html"></require>
+    <!-- <require from="./dynamic_textarea/dynamic-textarea.html"></require> -->
+    <require from="./dynamic_textarea/dynamic-textarea"></require>
 
     <div 
         id="container" 
@@ -13,6 +14,7 @@
             content.two-way="content.content"
             position.bind="content.position"
             hasfocus.bind="true"  
+            dyna_textarea_id.bind="content.id"
         ></dynamic-textarea>
 
     </div>

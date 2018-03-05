@@ -1,5 +1,4 @@
-<template bindable="content, position, hasfocus">
-    <!-- Add necessary attributes -->
+<template>
     <div 
         class="dynamic-textarea dropable" 
         contenteditable="true" 
@@ -7,13 +6,19 @@
         focus.bind = "hasfocus" 
         css="position:absolute; left: ${position.x}px; top:${position.y}px;"
         
-        textcontent.bind="content">
+        textcontent.bind="content"
+
+        id.one-time="dyna_textarea_id"
+
+        >
     </div>
+    <button click.delegate="getContentStorage()">Get contenStorage from wdd</button>
+        
+    
 </template>
 
 
 
-
-<!-- <div> ${hasfocus}</div> -->
-                                                    <!-- Real time content update -->
-                                                    <!-- <div>${content}</div> -->
+                                        <!-- <div> ${hasfocus}</div> -->
+                                        <!-- Real time content update -->
+                                        <!-- <div>${content}</div> -->

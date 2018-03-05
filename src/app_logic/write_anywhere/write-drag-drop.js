@@ -1,32 +1,23 @@
 import {inject}          from 'aurelia-framework'
 import {contextMenu}     from 'jquery-contextmenu'
-import {DynamicTextarea} from './dynamic_textarea/dynamic-textarea'
 
 import helper from '../helper_lib'
 
-// let wa       = require('../app_logic/write_anywhere/write_anywhere')
 let dd       = require('../drag_drop/drag_drop')
 let cm_logic = require('../context_menu/cm_logic')
-
-
 let idCounter=1;
 
-@inject(Element)
 export class WriteDragDrop {
-    constructor(element) {  
-                                    this.element = element
+    constructor() {  
+                                    // this.element = element
         this.contentStorage = []
-        this.wddContent = "hello"   
+                                    // this.wddContent = "hello"   
     }
 
     created() {
         this.addContextmenu()
-        dd.listeners.evListener()
+        // dd.listeners.evListener()
         cm_logic.listeners.evListener()
-    }
-
-    logContent(content) {
-        console.log(content.id)
     }
 
     multipleCalls(event) {
@@ -34,7 +25,6 @@ export class WriteDragDrop {
         this.addContentStorageElement(event)
     }
        
-
        /** Add textarea at mouse position
         * 
         * 1. Click in id#container to add a textarea at mouseposition
@@ -72,9 +62,6 @@ export class WriteDragDrop {
         // counter to give each dataobject an id
             ++idCounter
        }
-       
-
-
 
     addContextmenu() {
         // listen to highlight event
@@ -141,3 +128,7 @@ export class WriteDragDrop {
 
 }
 
+
+// logContent(content) {
+//     console.log(content.id)
+// }
