@@ -13,7 +13,6 @@ const mongoose = require('mongoose'),
 */
 
 exports.list_all_contact = function (req, res) {
-  console.log("get")
   NameForSchema.find({}, function (err, output) {
     if (err) res.send(err)
     // If needed, set response header like this
@@ -25,8 +24,6 @@ exports.list_all_contact = function (req, res) {
 }
 
 exports.create_a_contact = function (req, res) {
-  console.log("post")
-  console.log(req)
   const new_task = new NameForSchema(req.body)
   new_task.save(function (err, output) {
     if (err) res.send(err)
