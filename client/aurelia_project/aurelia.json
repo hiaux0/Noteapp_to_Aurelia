@@ -100,7 +100,7 @@
             ".html",
             ".css"
           ],
-          "stub": true
+          "stub": false
         }
       ]
     }
