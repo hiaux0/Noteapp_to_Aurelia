@@ -13,13 +13,8 @@ module.exports = function (app) {
 
   app.route('/route')
     .get(nameForSchema.list_all_contact)
-    // .post( function( req,res,next) {
-    //   // console.log("before post")
-    //   res.header("Access-Control-Allow-Origin", "http://localhost:9000");
-    //   console.log(req.headers)
-    //   nameForSchema.create_a_contact
-    // })
     .post(nameForSchema.create_a_contact)
+    .delete(nameForSchema.delete_all_contact)
 
   app.route('/route/:id')
     .get(nameForSchema.read_a_contact)
