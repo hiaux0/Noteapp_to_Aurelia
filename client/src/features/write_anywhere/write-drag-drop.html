@@ -1,0 +1,28 @@
+<template > 
+    <require from="./dynamic_textarea/dynamic-textarea"></require>
+    <require from='./write-drag-drop.css'></require>
+
+    <div 
+        id="container" 
+        click.delegate="multipleCalls($event)" 
+        class="dropable write-anywhere" >
+        <dynamic-textarea 
+            content.two-way="databasecontent.name" >
+        </dynamic-textarea>
+        <dynamic-textarea 
+            repeat.for="content of contentStorage" 
+            content.two-way="content.name"
+            position.bind="content.position"
+            hasfocus.bind="true"  
+            dyna_textarea_id.bind="content.id"
+        ></dynamic-textarea>
+
+    </div>
+
+</template>
+
+
+        <!-- test content of dynamic-textarea -->
+        <!-- <button click.delegate="logContent(content)" repeat.for="content of contentStorage">
+            Get info for area ${content.id}
+        </button> -->

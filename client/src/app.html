@@ -2,17 +2,17 @@
   <require from="../stylesheets/app.css"></require>
   <nav-bar router.bind="router"></nav-bar>
 
-  <ul repeat.for="nav of router.navigation">
-    <li class="${nav.isActive ? 'active' : ''}">
-      <a href.bind="nav.href">${nav.title}</a>
-    </li>
-  </ul>
+  <span repeat.for="nav of router.navigation">
+    <span class="${nav.isActive ? 'active' : ''}">
+      <a href.bind="nav.href" id="navbar">${nav.title}</a>
+    </span>
+  </span>
   
-  <div class="grid-container">
+  <div class="main-container">
     <div class="grid-sidebar">
       <div>
         <button click.delegate="getData()">GET</button>
-        Show Database object's name:
+        Database object's name:
         <div repeat.for='dataMess of dataMessage'>
           <div if.bind="dataMess._id">
             <a 
@@ -24,7 +24,7 @@
       </div>
       <div>
         <button click.delegate="postData()">POST</button>
-        Show Database message:
+        Database message:
       </div>
       <div>
         <button click.delegate="dropData()">DROP ALL DATA</button>

@@ -10,3 +10,9 @@ export class EntryUpdated {
     this.updatedKeys = updatedKeys
   }
 }
+
+export class NewEntrySelected {
+  constructor(newEntry) {
+    this.newEntry = newEntry
+  }
+}

@@ -1,24 +1,82 @@
 body {
-  background-color: orange;
+  background-color: rgb(252, 239, 215);
   font-size: 20px;
-  padding: 2em;
+  padding: 1em;
 }
 
-.grid-container {
+.main-container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
+  margin-top: 0.5em;
 }
 
 .grid-view {
-  grid-area: 1/4/2/13;
+  grid-area: 1/3/2/13;
 }
 
 .grid-sidebar {
-  grid-area: 1/1/2/4;
+  grid-area: 1/1/2/3;
 }
 
 [class^=grid] {
-  border: 1px solid gray;
+  border: 1px solid lightgray;
   padding: 0.5em;
 }
+
+#navbar {
+  margin-right: 2em;
+
+}
+
+/* *********************************************** */
+/* *********************************************** */
+/*                                                 */
+/*          dynamic textarea */
+/*                                                 */
+/* *********************************************** */
+/* *********************************************** */
+
+.dynamic-textarea {
+  background-color: inherit;
+  padding:0.2em;
+  outline: none;
+  /* border */
+    border: 1px dotted gray;
+    border-top: 4px solid black;
+  /* resize able */
+    resize: both;
+    overflow: auto;
+  /* size */
+    height: auto;
+    min-width: 1vw;
+    width: auto;
+    font-size: inherit;
+}
+
+
+/* BUTTONS */
+   button,
+  .button-success,
+  .button-error,
+  .button-warning,
+  .button-secondary {
+    border-radius: 4px;
+    text-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.2);
+  }
+
+  .button-success {
+    background: rgb(28, 184, 65);
+  }
+
+  .button-error {
+    background: rgb(202, 60, 60);
+  }
+
+  .button-warning {
+    background: rgb(223, 117, 20);
+  }
+
+  .button-secondary {
+    background: rgb(66, 184, 221);
+  }
 

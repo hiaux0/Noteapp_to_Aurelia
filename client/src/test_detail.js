@@ -3,7 +3,7 @@ import {HttpClient,json} from 'aurelia-fetch-client'
 import {EventAggregator} from 'aurelia-event-aggregator'
 
 import { DatabaseAPI } from './database-api';
-import { EntryDeleted, EntryUpdated } from './messages'
+import { EntryDeleted, EntryUpdated, NewEntrySelected } from './messages'
 
 const client = new HttpClient()
 
@@ -16,6 +16,10 @@ export class TestDetail {
     this.ea = ea
     this.dbApi = dbApi 
     this.detail = ""
+  }
+
+  created() {
+    this.getDataDetail()
   }
 
   activate(params, routeConfig) {

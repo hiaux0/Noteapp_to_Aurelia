@@ -1,27 +1,28 @@
 <template>
+  <require from='./features/write_anywhere/write-drag-drop'></require>
+
+  <write-drag-drop databasecontent.two-way="dataDetail"></write-drag-drop>
   <div>
-    <div>
-      Id of detail: 
-      <br>
-      ${detailId}
-      <div if.bind='detailId'>
-        <button click.delegate="editDetail()"> 
-          Edit
-        </button>
-          <span if.bind='editRequested'>
-              name
-              <input type="text" value.bind="name" > 
-              connection
-              <input type="text" value.bind="connection" value="true">
-              <button click.delegate="saveDetail()">Save</button>
-              <!-- <button disabled.bind="!canSave">Save</button> -->
-          
-              <!-- <button>Save</button> -->
-          </span>
-        <button click.delegate="deleteDetail()">
-          Delete
-        </button>
-      </div>
+    Id of detail: 
+    <br>
+    ${detailId}
+    <div if.bind='detailId'>
+      <button click.delegate="editDetail()"> 
+        Edit
+      </button>
+        <span if.bind='editRequested'>
+            name
+            <input type="text" value.bind="name" > 
+            connection
+            <input type="text" value.bind="connection" value="true">
+            <button click.delegate="saveDetail()">Save</button>
+            <!-- <button disabled.bind="!canSave">Save</button> -->
+        
+            <!-- <button>Save</button> -->
+        </span>
+      <button click.delegate="deleteDetail()">
+        Delete
+      </button>
     </div>
   </div>
 </template>
