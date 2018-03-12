@@ -17,7 +17,6 @@ export class App {
     this.getData()
 
     ea.subscribe(EntryDeleted, msg => {
-      console.log(msg.deletedId)
       this.dataMessage = this.dataMessage.filter(ele => 
         ele._id !== msg.deletedId
       )
@@ -79,17 +78,3 @@ export class App {
   }
 }
 
-const test = [
-  {a:1},
-  {a:2}
-]
-
-test.map(ele => {
-  // console.log(ele.a)
-  if(ele.a ===1) {
-    // console.log("ononeoneee")
-  }
-})
-
-let test1 = test.filter( ele => ele.a > 1)
-// console.log('test1', test1);

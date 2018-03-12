@@ -19,7 +19,6 @@ export class TestDetail {
   }
 
   activate(params, routeConfig) {
-    console.log("landed in detail")
     this.routeConfig = routeConfig;
     this.params = params
     this.id = this.params.id

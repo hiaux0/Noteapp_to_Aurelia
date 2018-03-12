@@ -52,7 +52,6 @@ export class DatabaseAPI {
 
   
   put_database_entry(route,id,update) {
-    console.log("api put with update: " + update)
     const url = this.baseUrl + route + "/" + id
     return client.fetch(url,{
       method: "put",
@@ -68,5 +67,4 @@ export class DatabaseAPI {
     })
       .then(response => response.json())
   }
-
 }
