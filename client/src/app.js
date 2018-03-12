@@ -9,6 +9,7 @@ const client = new HttpClient()
 
 @inject(DatabaseAPI,EventAggregator)
 export class App {
+  route = "/notes"
   
   constructor(dbApi,ea) {
     this.dbApi = dbApi 
@@ -35,16 +36,17 @@ export class App {
   }
    
   getData() {
-    this.dbApi.get_database_entries("/route")
+    this.dbApi.get_database_entries(this.route)
       .then(data => {
+        console.log(data)
         this.dataMessage = data
       })
   }
 
   postData() {
-    this.dbApi.post_database_entry('/route', {
-      connection:true,
-      name: `test ${this.counter}`
+    this.dbApi.post_database_entry(this.route, {
+      content: `${this.counter}`,
+      title: `test ${this.counter}`
     })
       .then( data => {
         this.dataMessage.push(data)
@@ -70,8 +72,8 @@ export class App {
     config.title = 'Aurelia';
     config.map([
       { route: ['', 'home'], name: 'home', moduleId: 'router_display', nav: true, title: "Home" },
-      { route: 'route', name: 'route', moduleId: 'router_display', nav: true, title: 'Route' },
-      { route: 'route/:id', name: 'routeDetail', moduleId: 'test_detail' },
+      { route: 'notes', name: 'notes', moduleId: 'router_display', nav: true, title: 'Notes' },
+      { route: 'notes/:id', name: 'routeDetail', moduleId: 'test_detail' },
     ]);
     this.router = router;
 

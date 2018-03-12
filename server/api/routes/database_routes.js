@@ -4,20 +4,20 @@ module.exports = function (app) {
 // change nameForSchema and its methods
 // turn off match-whole-word search functionality for easy changing 
 /*
- list_all_contact
- create_a_contact
-   read_a_contact
- update_a_contact
- delete_a_contact
+ list_all_note
+ create_a_note
+   read_a_note
+ update_a_note
+ delete_a_note
 */
 
-  app.route('/route')
-    .get(nameForSchema.list_all_contact)
-    .post(nameForSchema.create_a_contact)
-    .delete(nameForSchema.delete_all_contact)
+  app.route('/notes')
+    .get(nameForSchema.list_all_note)
+    .post(nameForSchema.create_a_note)
+    .delete(nameForSchema.delete_all_note)
 
-  app.route('/route/:id')
-    .get(nameForSchema.read_a_contact)
-    .put(nameForSchema.update_a_contact)
-    .delete(nameForSchema.delete_a_contact)
+  app.route('/notes/:id')
+    .get(nameForSchema.read_a_note)
+    .put(nameForSchema.update_a_note)
+    .delete(nameForSchema.delete_a_note)
 }

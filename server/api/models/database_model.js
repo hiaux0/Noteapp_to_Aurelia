@@ -1,20 +1,27 @@
 const mongoose = require("mongoose"),
       Schema   = mongoose.Schema
 
-// Change NameForSchemaSchema, 'NameForSchema' and Schema model to your liking
-const NameForSchemaSchema = new Schema({
-  name: {
+// Change NoteAppSchema, 'NoteApp' and Schema model to your liking
+const NoteAppSchema = new Schema({
+  title: {
     type: String
   },
-  // age: Number,
-  Create_date: {
+  content: {
+    type: String
+  },
+  family_tree: {
+    parents: [{}],
+    siblings: [{}],
+    children: [{}]
+  },
+  create_date: {
     type: Date,
     default: Date.now
   },
-  connection: {
-    type: Boolean,
-    required: "PUT request to change connection to TRUE"
-  }
+  // connection: {
+  //   type: Boolean,
+  //   required: "PUT request to change connection to TRUE"
+  // }
   // status: {
   //   type: [{
   //     type: String,
@@ -24,4 +31,4 @@ const NameForSchemaSchema = new Schema({
   // }
 })
 
-module.exports = mongoose.model("NameForSchema", NameForSchemaSchema)
+module.exports = mongoose.model("NoteApp", NoteAppSchema)

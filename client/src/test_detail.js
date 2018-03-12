@@ -10,7 +10,7 @@ const client = new HttpClient()
 @inject(DatabaseAPI, EventAggregator)
 export class TestDetail {
   editRequested = true;
-  route = "/route"
+  route = "/notes"
   id = null
   constructor(dbApi,ea) {
     this.ea = ea
@@ -36,8 +36,8 @@ export class TestDetail {
         if (dataDetail) {
           this.dataDetail = dataDetail
           this.detailId = dataDetail._id
-          this.name = dataDetail.name
-          this.connection = dataDetail.connection
+          this.title = dataDetail.title
+          this.content = dataDetail.content
         }
       })
   }
@@ -48,9 +48,9 @@ export class TestDetail {
 
   saveDetail() {
     // register changes to dataDetail
-    this.dataDetail.name = this.name
-    this.dataDetail.connectino = this.connection
-    let updatedKeys = ["name","connection"]
+    this.dataDetail.title = this.title
+    this.dataDetail.content = this.content
+    let updatedKeys = ["title","content"]
 
     this.dbApi.put_database_entry(this.route, this.id, this.dataDetail)
     this.ea.publish(new EntryUpdated(this.dataDetail, updatedKeys))

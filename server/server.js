@@ -11,7 +11,7 @@ const app = express()
 // 
 
 mongoose.promise = global.Promise
-mongoose.connect('mongodb://dbtest:dbtest@localhost:27017/dbtest')
+mongoose.connect('mongodb://note_app:note_app@localhost:27017/note_app')
 
 //////////////////////////////////
 //
