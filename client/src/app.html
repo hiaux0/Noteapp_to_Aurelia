@@ -1,0 +1,40 @@
+<template >
+  <require from="../stylesheets/app.css"></require>
+  <nav-bar router.bind="router"></nav-bar>
+
+  <ul repeat.for="nav of router.navigation">
+    <li class="${nav.isActive ? 'active' : ''}">
+      <a href.bind="nav.href">${nav.title}</a>
+    </li>
+  </ul>
+  
+  <div class="grid-container">
+    <div class="grid-sidebar">
+      <div>
+        <button click.delegate="getData()">GET</button>
+        Show Database object's name:
+        <div repeat.for='dataMess of dataMessage'>
+          <div if.bind="dataMess._id">
+            <a 
+              route-href="route: routeDetail; params.bind: {id:dataMess._id}" >
+              ${dataMess.name}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <button click.delegate="postData()">POST</button>
+        Show Database message:
+      </div>
+      <div>
+        <button click.delegate="dropData()">DROP ALL DATA</button>
+      </div>
+    </div>
+
+    <router-view class="grid-view"></router-view>
+
+  </div>
+
+
+
+</template>
