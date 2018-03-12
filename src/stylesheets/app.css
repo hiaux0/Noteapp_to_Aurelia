@@ -1,0 +1,110 @@
+body {
+  font-size: 25px;
+  font-family: "Andale Mono";
+  letter-spacing: -0.05em;
+  width: 90vw;
+  margin: 0 auto;
+}
+
+body>div {
+  resize: both;
+}
+
+button {
+  font-size: 30px;
+}
+
+a {
+  font-size: 50px;
+}
+
+#container {
+  background: #ffc188;
+  resize: both;
+  overflow: auto;
+  height: 200vh;
+}
+
+.circle {
+  height: 50px;
+  width: 50px;
+  background-color: gray;
+  border-radius: 50%;
+}
+
+.selected {
+  background-color: #80008061;
+  border: 2px solid #80008061
+}
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+/*                                                 */
+
+/*          dynamic textarea */
+
+/*                                                 */
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+.dynamic-textarea {
+  background-color: inherit;
+  outline: none;
+  /* border */
+  border: 1px dotted gray;
+  border-top: 4px solid black;
+  /* resize able */
+  resize: both;
+  overflow: auto;
+  /* size */
+  height: auto;
+  min-width: 1vw;
+  width: auto;
+  font-size: inherit;
+}
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+/*                                                 */
+
+/*          Grid */
+
+/*                                                 */
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+#grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr)
+}
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+/*                                                 */
+
+/*              Headline */
+
+/*                                                 */
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+.head-line {
+  border-bottom: 1px solid black;
+}
+
+.grid-element {
+  border: 1px gray solid
+}
+
