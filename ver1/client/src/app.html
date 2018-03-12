@@ -1,0 +1,12 @@
+<template>
+  <a href="/">Home</a>
+  <ul repeat.for="nav of router.navigation">
+    <li class="${nav.isActive ? 'active' : ''}">
+      <a href.bind="nav.href">${nav.title}</a>
+    </li>
+  </ul>
+  <h1>${message}</h1>
+  <router-view></router-view>
+
+  <button click.delegate="getData()">Click to get data</button>
+</template>

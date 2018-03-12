@@ -3,10 +3,9 @@ const mongoose = require("mongoose"),
 
 // Change NameForSchemaSchema, 'NameForSchema' and Schema model to your liking
 const NameForSchemaSchema = new Schema({
-  // name: {
-  //   type: String,
-  //   required: 'Please provide a name'
-  // },
+  name: {
+    type: String
+  },
   // age: Number,
   Create_date: {
     type: Date,

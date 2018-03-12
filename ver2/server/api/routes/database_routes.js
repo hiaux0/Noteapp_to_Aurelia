@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.route('/route')
     .get(nameForSchema.list_all_contact)
     .post(nameForSchema.create_a_contact)
+    .delete(nameForSchema.delete_all_contact)
 
   app.route('/route/:id')
     .get(nameForSchema.read_a_contact)

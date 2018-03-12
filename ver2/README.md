@@ -5,10 +5,12 @@
       - [Modules](#modules)
     - [Client](#client)
       - [Modules](#modules)
-  - [Start MondoDB](#start-mondodb)
+  - [Start MongoDB](#start-mongodb)
     - [Establish connection to database and provide API](#establish-connection-to-database-and-provide-api)
-    - [Fetch and Post to DB from Client side](#fetch-and-post-to-db-from-client-side)
+    - [Use database API](#use-database-api)
   - [TODO](#todo)
+  - [Issues](#issues)
+    - [Solved](#solved)
 
 # MEAUN Skeleton
 
@@ -40,7 +42,7 @@ Client side setup
 #### Modules
 - aurelia-client-fetch
 
-## Start MondoDB
+## Start MongoDB
 - Start a server following [MongoDB Enable Auth](https://docs.mongodb.com/manual/tutorial/enable-authentication/
 )
   - (For my reference: [Summarized version](/Users/hdn/Desktop/Coding/Notes/Javascript/MongoDB/Enable_Auth.md))
@@ -48,10 +50,29 @@ Client side setup
 ### Establish connection to database and provide API
 - See /server
 
-### Fetch and Post to DB from Client side
-- See /client/src/app.js
-  - data fetch from database
-  - Post: TODO
+### Use database API
+make use of database API
+- GET, POST are straightforward
+- PUT
+  - use pub/sub system using EventAggregator 
+    - import {EventAggregator} from 'aurelia-event-aggregator'- DELETE
+  - an update will be seen in real time (have to confirm button though)
+  - use pub/sub system using EventAggregator 
+    - import {EventAggregator} from 'aurelia-event-aggregator'
+  - if you delete a specific element from a list, this systems allows to update the list in real time
 
 ## TODO
 - Add guide from scratch
+- add something similar to `canSave` (Aurelia Contact Manager Tutorial) to monitor request and changes
+
+## Issues
+Issues I came across when building 
+
+### Solved
+- Access-Control-Allow-Origin / CORS
+  - const myRequest = new Request("address", {mode:'no-cors'})
+  - in the response header send
+    - `res.header("Access-Control-Allow-Origin", "*");`
+- 'dezalgo'
+  - https://github.com/npm/dezalgo/issues/6 https://github.com/npm/npm/issues/17444#issuecomment-361147551 https://github.com/OSSIndex/auditjs/commit/1705b98dea5ea464590484318dd98363fb6006e8
+  - delete package-lock.json

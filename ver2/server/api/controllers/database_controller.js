@@ -13,10 +13,11 @@ const mongoose = require('mongoose'),
 */
 
 exports.list_all_contact = function (req, res) {
+  console.log("get")
   NameForSchema.find({}, function (err, output) {
     if (err) res.send(err)
     // If needed, set response header like this
-      res.header("Access-Control-Allow-Origin", "*");
+      // res.header("Access-Control-Allow-Origin", "*");
       // res.header("Access-Control-Allow-Credentials", true );
       // res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.json(output)
@@ -32,6 +33,7 @@ exports.create_a_contact = function (req, res) {
 }
 
 exports.read_a_contact = function (req, res) {
+  console.log("get detail")
   NameForSchema.findById(req.params.id, function (err, output) {
     if (err) res.send(err)
     res.json(output)
@@ -40,6 +42,7 @@ exports.read_a_contact = function (req, res) {
 
 // To update 
 exports.update_a_contact = function (req, res) {
+  console.log("in put")
   NameForSchema.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }, function (err, output) {
     if (err) res.send(err)
     res.json(output)
@@ -53,3 +56,9 @@ exports.delete_a_contact = function (req, res) {
   })
 }
 
+exports.delete_all_contact = function (req, res) {
+  NameForSchema.remove({}, function (err, output) {
+    if (err) res.send(err)
+    res.json({ message: 'Succesfully deleted all data' })
+  })
+}

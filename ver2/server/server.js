@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser'),
       mongoose   = require('mongoose'),
-      express    = require('express')
+      express    = require('express'),
+      cors       = require('cors')
       
 const app = express()
 
@@ -19,6 +20,7 @@ mongoose.connect('mongodb://dbtest:dbtest@localhost:27017/dbtest')
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
+app.use(cors())
 
 //////////////////////////////////
 //
