@@ -7,6 +7,7 @@ let data, id, startLocation, targetLocation;
 
 @inject(Element, WriteDragDrop)
 export class DynamicTextarea {
+    id;
     @bindable content
     @bindable position
     @bindable hasfocus
@@ -14,14 +15,13 @@ export class DynamicTextarea {
     constructor(element, writedragdrop) {
         this.wdd = writedragdrop
         this.element = element
-        this.tester = "hihi"
     }
 
     created() {
-
         document.addEventListener("dragstart", this.dragStart)
         document.addEventListener("dragover", this.allowDrop)
         document.addEventListener("drop", this.drop)
+        this.id = this.element.children[0].id
     }
 
     getContentStorage() {
@@ -30,17 +30,16 @@ export class DynamicTextarea {
     }
 
     dragStart(event) { 
-        console.log("dragStart")
-        // this.element.children[0].setAttribute("id","ddId")
-        event.target.setAttribute("id","ddId")
+        // console.log("dragStart")
+        // event.target.setAttribute("id",this.id)
         id = event.target.id
-		console.log('DynamicTextarea -> dragStart -> id', id)
+		// console.log('DynamicTextarea -> dragStart -> id', id)
         event.dataTransfer.setData("text", id);
         
     }
 
     allowDrop(event) {
-        console.log("in dragover")
+        // console.log("in dragover")
         event.preventDefault() 
     }
 
@@ -57,7 +56,7 @@ export class DynamicTextarea {
         const drop_anywhere = getId("container")
         targetLocation = ev.target;
         // check if dropped on element itself (happens due to preview)
-        if (targetLocation.id === ddId) {
+        if (targetLocation.id === this.id) {
             // console.log(`case: id: ${targetLocation.parentNode}`);
             targetLocation = targetLocation.parentNode;
         }

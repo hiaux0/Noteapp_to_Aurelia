@@ -2,22 +2,24 @@
   <require from='./features/write_anywhere/write-drag-drop'></require>
 
   <write-drag-drop databasecontent.two-way="dataDetail"></write-drag-drop>
+  <!-- <write-drag-drop databasecontent="content.bind: dataDetail"></write-drag-drop> -->
+  <!-- <compose databasecontent.two-way="dataDetail" view-model="./features/write_anywhere/write-drag-drop"></compose> -->
   <div>
     Id of detail: 
     <br>
     ${detailId}
     <div if.bind='detailId'>
-      <button click.delegate="editDetail()"> 
+      <button class="btn btn-outline-success" click.delegate="editDetail()"> 
         Edit
       </button>
         <span if.bind='editRequested'>
-            name
+            Title
             <input type="text" value.bind="title" > 
-            content
-            <input type="text" value.bind="content">
-            <button click.delegate="saveDetail()">Save</button>
+            Content
+            <input type="text" value.two-way="content">
+            <button class="btn btn-outline-secondary" click.delegate="saveDetail()">Save</button>
         </span>
-      <button click.delegate="deleteDetail()">
+      <button class="btn btn-outline-danger" click.delegate="deleteDetail()">
         Delete
       </button>
     </div>

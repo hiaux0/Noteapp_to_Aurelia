@@ -1,6 +1,7 @@
 import {inject} from 'aurelia-framework'
 import {HttpClient, json} from 'aurelia-fetch-client';
 import {EventAggregator} from 'aurelia-event-aggregator'
+import { activationStrategy } from 'aurelia-router'
 
 import {DatabaseAPI} from './database-api';
 import {EntryDeleted, EntryUpdated} from './messages'
@@ -33,12 +34,26 @@ export class App {
         }
       })
     })
+    // show x and y pos of mouse
+ 
+  }
+
+  // attached() {
+  //   document.addEventListener("mousemove", function (ev) {
+  //     this.xcoord = ev.pageX
+  //     console.log(this.xcoord)
+  //     this.ycoord = ev.pageY
+  //   })
+  // }
+
+  updateX(ev) {
+    this.xcoord = ev.pageX
+    this.ycoord = ev.pageY
   }
    
   getData() {
     this.dbApi.get_database_entries(this.route)
       .then(data => {
-        console.log(data)
         this.dataMessage = data
       })
   }
@@ -66,14 +81,16 @@ export class App {
   }
 
   configureRouter(config, router) {
-    this.router = router;
     config.options.pushState = true;
     config.options.root = '/';
     config.title = 'Aurelia';
     config.map([
-      { route: ['', 'home'], name: 'home', moduleId: 'router_display', nav: true, title: "Home" },
-      { route: 'notes', name: 'notes', moduleId: 'router_display', nav: true, title: 'Notes' },
-      { route: 'notes/:id', name: 'routeDetail', moduleId: 'test_detail' },
+      { route: ['', 'home'], name: 'home', moduleId: 'router_display', nav: true, title: "Home" 
+      },
+      { route: 'notes', name: 'notes', moduleId: 'router_display', nav: true, title: 'Notes'
+      },
+      { route: 'notes/:id', name: 'routeDetail', moduleId: 'test_detail' 
+      },
     ]);
     this.router = router;
 

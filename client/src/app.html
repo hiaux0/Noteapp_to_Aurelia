@@ -1,40 +1,81 @@
 <template >
+  <require from="bootstrap/css/bootstrap.css"></require>
   <require from="../stylesheets/app.css"></require>
+
   <nav-bar router.bind="router"></nav-bar>
 
-  <span repeat.for="nav of router.navigation">
-    <span class="${nav.isActive ? 'active' : ''}">
-      <a href.bind="nav.href" id="navbar">${nav.title}</a>
-    </span>
-  </span>
+<!------------------------ Navbar ------------------------>
+  <nav class="navbar navbar-expand-lg navbar-light" id="custom-navbar"> 
+    <a class="navbar-brand" href="">Noteapp</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
   
-  <div class="main-container">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li repeat.for="nav of router.navigation" > <!-- Aurelia -->
+          <span class="${nav.isActive ? 'active' : ''} nav-item">
+            <a class="nav-link" href.bind="nav.href" >${nav.title} </a>
+          </span>
+        </li>
+      </ul>
+      <div class="nav-item float-right">
+        X: ${xcoord} __
+      </div>
+      <div class="nav-item float-right">
+        Y: ${ycoord}
+      </div>
+    <!-- <div mousemove.delegate="mousemove($event)" style="background: teal; border: 2px dotted #333; color: #FFF; font-size: 16px; font-weight: bold; height: 250px; width:500px;">Move mouse in here...</div>
+        <ul if.bind="mouseevents">
+          <li repeat.for="mouseevent of mouseevents">x: ${mouseevent.x} y: ${mouseevent.y}</li>
+        </ul> -->
+
+    </div>
+  </nav>
+<!------------------------ Navbar ------------------------>
+  
+  <div class="main-container" mousemove.delegate="updateX($event)">
     <div class="grid-sidebar">
       <div>
-        <button click.delegate="getData()">GET</button>
+        <button class="btn btn-outline-secondary" click.delegate="getData()">GET</button>
         Database object's name:
-        <div repeat.for='dataMess of dataMessage'>
-          <div if.bind="dataMess._id">
-            <a 
-              route-href="route: routeDetail; params.bind: {id:dataMess._id}" >
-              ${dataMess.title}
-            </a>
+        <div>
+          <div id="accordion">
+            <div class="card pc">
+              <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                  <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    First Note group
+                  </button>
+                </h5>
+              </div>
+              <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                  <div repeat.for='dataMess of dataMessage'>
+                    <div if.bind="dataMess._id">
+                      <a route-href="route: routeDetail; params.bind: {id:dataMess._id}">
+                        ${dataMess.title}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div>
-        <button click.delegate="postData()">POST</button>
+        <button class="btn btn-outline-secondary" click.delegate="postData()">POST</button>
         Database message:
       </div>
       <div>
-        <button click.delegate="dropData()">DROP ALL DATA</button>
+        <button class="btn btn-outline-secondary" click.delegate="dropData()">DROP ALL DATA</button>
       </div>
     </div>
-
+    
     <router-view class="grid-view"></router-view>
 
   </div>
-
-
 
 </template>

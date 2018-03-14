@@ -1,35 +1,38 @@
-import { inject } from 'aurelia-framework'
+import { TaskQueue, inject } from 'aurelia-framework'
 import {HttpClient,json} from 'aurelia-fetch-client'
 import {EventAggregator} from 'aurelia-event-aggregator'
+import { activationStrategy } from 'aurelia-router';
 
 import { DatabaseAPI } from './database-api';
 import { EntryDeleted, EntryUpdated, NewEntrySelected } from './messages'
 
 const client = new HttpClient()
 
-@inject(DatabaseAPI, EventAggregator)
+@inject(DatabaseAPI, EventAggregator, TaskQueue)
 export class TestDetail {
   editRequested = true;
   route = "/notes"
   id = null
-  constructor(dbApi,ea) {
+
+  constructor(dbApi, ea, TaskQueue) {
+    this.taskQueue = TaskQueue;    
     this.ea = ea
     this.dbApi = dbApi 
     this.detail = ""
   }
 
-  created() {
-    this.getDataDetail()
-  }
+  // determineActivationStrategy() {
+  //   return "invoke-lifecycle"
+  //   // return "replace"
+  // }
 
   activate(params, routeConfig) {
     this.routeConfig = routeConfig;
     this.params = params
     this.id = this.params.id
-    
     return this.getDataDetail()
   }
-  
+
   getDataDetail() {
     this.dbApi.get_one_database_entry(this.route,this.id)
       .then(dataDetail => {

@@ -2,21 +2,24 @@
     <require from="./dynamic_textarea/dynamic-textarea"></require>
     <require from='./write-drag-drop.css'></require>
 
+    <button class="btn btn-outline-secondary" click.delegate="asnycTest()">Add </button>
+    <button class="btn btn-outline-secondary" click.delegate="clearCanvas()">Clear </button>
+    <button class="btn btn-outline-secondary" click.delegate="getConnectStorageSize()">Get connectStorage </button>
+    <button class="btn btn-outline-secondary" click.delegate="drawLineConnection()">Get connectStorage </button>
+    
     <div 
         id="container" 
+        dblclick.trigger="removeLast()"
         click.delegate="multipleCalls($event)" 
-        class="dropable write-anywhere" >
-        <dynamic-textarea 
-            content.two-way="databasecontent.content" >
-        </dynamic-textarea>
+        class="dropable write-anywhere" 
+         >
         <dynamic-textarea 
             repeat.for="content of contentStorage" 
-            content.two-way="content.name"
+            content.two-way="content.content"
             position.bind="content.position"
             hasfocus.bind="true"  
             dyna_textarea_id.bind="content.id"
-        ></dynamic-textarea>
-
+            ></dynamic-textarea>
     </div>
 
 </template>
