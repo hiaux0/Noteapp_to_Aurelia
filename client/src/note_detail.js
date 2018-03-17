@@ -7,7 +7,6 @@ import { DatabaseAPI } from './database-api';
 import { EntryDeleted, EntryUpdated, NewEntrySelected } from './messages'
 import {WriteDragDrop} from './features/write_anywhere/write-drag-drop'
 
-
 const client = new HttpClient()
 
 @inject(DatabaseAPI, EventAggregator, TaskQueue)
@@ -15,7 +14,6 @@ export class TestDetail {
   editRequested = true;
   route = "/notes"
   id = null
-  readyToRender = false
 
   constructor(dbAPI, ea, TaskQueue) {
     this.taskQueue = TaskQueue;    
@@ -32,10 +30,10 @@ export class TestDetail {
     this.dbAPI.patch_note_content(this.route, this.id, messageFromChild)
   }
 
-  // determineActivationStrategy() {
-  //   return "invoke-lifecycle"
-  //   // return "replace"
-  // }
+  determineActivationStrategy() {
+    // return "invoke-lifecycle"
+    return "replace"
+  }
 
   activate(params, routeConfig) {
     this.routeConfig = routeConfig;

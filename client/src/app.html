@@ -16,7 +16,11 @@
       <ul class="navbar-nav mr-auto">
         <li repeat.for="nav of router.navigation" > <!-- Aurelia -->
           <span class="${nav.isActive ? 'active' : ''} nav-item">
-            <a class="nav-link" href.bind="nav.href" >${nav.title} </a>
+            <a 
+              class="nav-link" 
+              href.bind="nav.href" >
+              ${nav.title} 
+            </a>
           </span>
         </li>
       </ul>
@@ -53,7 +57,9 @@
             <div class="card-body">
               <div repeat.for='dataMess of dataMessage'>
                 <div if.bind="dataMess._id">
-                  <a route-href="route: routeDetail; params.bind: {id:dataMess._id}">
+                  <a 
+                    route-href="route: routeDetail; params.bind: {id:dataMess._id}"
+                    dblclick.delegate="changeNoteName($event)" >
                     ${dataMess.title}
                   </a>
                 </div>
@@ -61,7 +67,9 @@
               <div id="create-new-note">
                 <form action="" submit.trigger="postNewNote()">
                   <input type="text" value.bind="newNoteTitle">
-                  <button class="btn btn-outline-success"> Create</button>
+                  <button class="btn btn-outline-success"> 
+                    Create
+                  </button>
                 </form>
               </div>
               <!-- <div>${newNoteTitle}</div> -->

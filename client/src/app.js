@@ -1,35 +1,40 @@
-import {inject} from 'aurelia-framework'
-import {HttpClient, json} from 'aurelia-fetch-client';
-import {EventAggregator} from 'aurelia-event-aggregator'
+import { inject } from 'aurelia-framework'
+import { HttpClient, json } from 'aurelia-fetch-client';
+import { EventAggregator } from 'aurelia-event-aggregator'
 import { activationStrategy } from 'aurelia-router'
 
-import {DatabaseAPI} from './database-api';
-import {EntryDeleted, EntryUpdated} from './messages'
+import { DatabaseAPI } from './database-api';
+import { EntryDeleted, EntryUpdated } from './messages'
 import connectArea from "./features/connect_area/connect-area"
 
 const client = new HttpClient()
 
-@inject(DatabaseAPI,EventAggregator)
+@inject(DatabaseAPI, EventAggregator)
 export class App {
   route = "/notes"
   toggleHide = "Hide"
   toggleCreateNewNote = 'none'
-
-  constructor(dbAPI,ea) {
-    this.dbAPI = dbAPI 
-    this.counter = 1
-    this.dataMessage = []
+  counter = 1
+  dataMessage = []
+  // obj to store info for naming title
+  oneNameEditAtATime = {
+    counter: 0,
+    last: 0
+  }
+  
+  constructor(dbAPI, ea) {
+    this.dbAPI = dbAPI
     this.getData()
 
     ea.subscribe(EntryDeleted, msg => {
-      this.dataMessage = this.dataMessage.filter(ele => 
+      this.dataMessage = this.dataMessage.filter(ele =>
         ele._id !== msg.deletedId
       )
     })
-    
+
     // sub to changes of a dataDetail and updates it in real time
     ea.subscribe(EntryUpdated, msg => {
-      this.dataMessage.map( ele => {
+      this.dataMessage.map(ele => {
         if (ele._id === msg.updatedEntry._id) {
           msg.updatedKeys.forEach(key => {
             ele[key] = msg.updatedEntry[key]
@@ -37,8 +42,39 @@ export class App {
         }
       })
     })
-    // show x and y pos of mouse
- 
+  }
+
+    /**
+   * If double click on Note title, make it editable
+   * @memberOf App
+   */
+  changeNoteName(ev) {
+    let target = ev.target
+    // If dblclick different title, remove focus and styles of last
+    if(this.oneNameEditAtATime.counter === 1) {
+      this.oneNameEditAtATime.last.style.backgroundColor = "#fff3e0"
+      this.oneNameEditAtATime.last.setAttribute("contenteditable", false)
+      this.oneNameEditAtATime.counter == 0;
+    }
+    this.oneNameEditAtATime.last = ev.target  
+    // prepare name title change styles
+    target.setAttribute("contenteditable", true)
+    target.style.backgroundColor = "white"
+    target.focus()
+    
+    console.log(this.oneNameEditAtATime.counter)
+    target.addEventListener("keydown", function makeEditable(ev ) {
+      let target = ev.target
+      if (ev.which === 13) {
+        ev.preventDefault()
+        target.style.backgroundColor = "#fff3e0"
+        target.setAttribute("contenteditable", false)
+        target.removeEventListener("keydown", makeEditable)
+        
+      }
+    })
+    this.oneNameEditAtATime.counter = 1
+  
   }
 
   updateX(ev) {
@@ -54,20 +90,16 @@ export class App {
   postNewNote() {
     this.postData()
     this.newNoteTitle = ""
-    document.getElementById("create-new-note").style.display = "none"    
+    document.getElementById("create-new-note").style.display = "none"
 
   }
-
-    
-
- 
 
   /**
    * Show or hide the navbar
    * @memberOf App
    */
   toggleNavbar() {
-    switch(this.toggleHide) {
+    switch (this.toggleHide) {
       case "Hide":
         document.getElementById("custom-navbar").style.display = "none"
         this.toggleHide = "Show"
@@ -75,10 +107,10 @@ export class App {
       case "Show":
         document.getElementById("custom-navbar").style.display = "flex"
         this.toggleHide = "Hide"
-        break        
+        break
     }
   }
-   
+
   getData() {
     this.dbAPI.get_database_entries(this.route)
       .then(data => {
@@ -87,7 +119,7 @@ export class App {
   }
   postData() {
     // console.log(document.getElementById("note-container"))
-    let coords = document.getElementById("note-container").getBoundingClientRect() 
+    let coords = document.getElementById("note-container").getBoundingClientRect()
     let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
       coords.x,
       coords.y,
@@ -95,27 +127,27 @@ export class App {
       coords.width
     )
     this.dbAPI.post_database_entry(this.route, {
-      title: `${this.newNoteTitle}`,
-      content: {
-        id:1,
-        content: "",
-        position: {
-          x: firstAreaPosition.x,
-          y: firstAreaPosition.y
+        title: `${this.newNoteTitle}`,
+        content: {
+          id: 1,
+          content: "",
+          position: {
+            x: firstAreaPosition.x,
+            y: firstAreaPosition.y
+          }
         }
-      }
-    })
-      .then( data => {
+      })
+      .then(data => {
         this.dataMessage.push(data)
       })
     this.counter++
   }
   dropData() {
     client.fetch("http://localhost:3000/route", {
-      method: "delete"
-    })
+        method: "delete"
+      })
       .then(response => response.json())
-      .then( data => {
+      .then(data => {
         this.dataMessage = []
         console.log(data)
       })
@@ -127,16 +159,27 @@ export class App {
     config.options.pushState = true;
     config.options.root = '/';
     config.title = 'Notes';
-    config.map([
-      { route: ['', 'home'], name: 'home', moduleId: 'router_display', nav: true, title: "Home" 
+    config.map([{
+        route: ['', 'home'],
+        name: 'home',
+        moduleId: 'router_display',
+        nav: true,
+        title: "Home"
       },
-      { route: 'notes', name: 'notes', moduleId: 'router_display', nav: true, title: 'Notes'
+      {
+        route: 'notes',
+        name: 'notes',
+        moduleId: 'router_display',
+        nav: true,
+        title: 'Notes'
       },
-      { route: 'notes/:id', name: 'routeDetail', moduleId: 'note_detail' 
+      {
+        route: 'notes/:id',
+        name: 'routeDetail',
+        moduleId: 'note_detail'
       },
     ]);
     this.router = router;
 
   }
 }
-

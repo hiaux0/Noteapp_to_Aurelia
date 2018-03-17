@@ -1,25 +1,17 @@
 <template>
   <require from='./features/write_anywhere/write-drag-drop'></require>
 
-  <write-drag-drop if.bind="readyToRender"
+  <write-drag-drop 
     ctp-wdd-testdail.two-way="fromChildWDD"
     database-content.two-way="dataDetail"></write-drag-drop>
   <!-- <write-drag-drop databasecontent="content.bind: dataDetail"></write-drag-drop> -->
   <!-- <compose databasecontent.two-way="dataDetail" view-model="./features/write_anywhere/write-drag-drop"></compose> -->
-  <button class="btn btn-outline-secondary" click.delegate="patch()">Patch </button>
   
   <div>
-    Id of detail: 
-    ${detailId}
     <div if.bind='detailId'>
-      <button class="btn btn-outline-success" click.delegate="editDetail()"> 
-        Edit
-      </button>
         <span if.bind='editRequested'>
             Title
             <input type="text" value.bind="title" > 
-            Content
-            <input type="text" value.two-way="content">
             <button class="btn btn-outline-secondary" click.delegate="saveDetail()">Save</button>
         </span>
       <button class="btn btn-outline-danger" click.delegate="deleteDetail()">
