@@ -6,9 +6,7 @@ const NoteAppSchema = new Schema({
   title: {
     type: String
   },
-  content: {
-    type: String
-  },
+  content: Array ,
   family_tree: {
     parents: [{}],
     siblings: [{}],

@@ -1,7 +1,7 @@
 module.exports = function (app) {
-  const nameForSchema = require("../controllers/database_controller")
+  const noteApp = require("../controllers/database_controller")
 
-// change nameForSchema and its methods
+// change noteApp and its methods
 // turn off match-whole-word search functionality for easy changing 
 /*
  list_all_note
@@ -9,15 +9,18 @@ module.exports = function (app) {
    read_a_note
  update_a_note
  delete_a_note
+
+ patch_note_content
 */
 
   app.route('/notes')
-    .get(nameForSchema.list_all_note)
-    .post(nameForSchema.create_a_note)
-    .delete(nameForSchema.delete_all_note)
+    .get(noteApp.list_all_note)
+    .post(noteApp.create_a_note)
+    .delete(noteApp.delete_all_note)
 
   app.route('/notes/:id')
-    .get(nameForSchema.read_a_note)
-    .put(nameForSchema.update_a_note)
-    .delete(nameForSchema.delete_a_note)
+    .get(noteApp.read_a_note)
+    .patch(noteApp.patch_note_content)
+    .put(noteApp.update_a_note)
+    .delete(noteApp.delete_a_note)
 }
