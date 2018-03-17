@@ -1,14 +1,14 @@
 <template > 
     <require from="./dynamic_textarea/dynamic-textarea"></require>
-    <require from='./write-drag-drop.css'></require>
+    <require from='../../../stylesheets/write-drag-drop.css'></require>
 
-    <button class="btn btn-outline-secondary" click.delegate="asnycTest()">Add </button>
+    <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save </button>
     <button class="btn btn-outline-secondary" click.delegate="clearCanvas()">Clear </button>
     <button class="btn btn-outline-secondary" click.delegate="getConnectStorageSize()">Get connectStorage </button>
     <button class="btn btn-outline-secondary" click.delegate="drawLineConnection()">Get connectStorage </button>
     
     <div 
-        id="container" 
+        id="note-container" 
         dblclick.trigger="removeLast()"
         click.delegate="multipleCalls($event)" 
         class="dropable write-anywhere" 

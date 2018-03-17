@@ -4,8 +4,22 @@ let connectArea = {
   getConnectStorageSize,
   listenToConnect,
   areaDistancesToOrigin, // sorting
-  euclideanDistaceToOrigin
+  euclideanDistaceToOrigin,
+  rectangle: {
+    /**
+     * Return middle point of a rectangle.
+     * @param topLeftPt: {x,y}
+     */
+    getMiddlePoint: function(x,y, height, width) {
+      return {
+        x: x + width*0.5,
+        y: y + height*0.5
+      }
+     }
+  }
 }
+
+
 
 function drawLineConnection() {
   connection
@@ -19,8 +33,8 @@ function drawLineConnection() {
  * 
  */
 function listenToConnect() {
-  const container = document.getElementById("container")
-// listen for cmd-press
+  const container = document.getElementById("note-container")
+  // listen for cmd-press
   container.addEventListener("keydown", (ev) => {
     if(ev.which === 91) {
       console.log(ev.which)
@@ -51,20 +65,20 @@ function listenToConnect() {
     }
   }
     function getLineEndPts() {
-    // case where only 2 areas are selecetd 2018-03-14 23:21:30
+      // case where only 2 areas are selecetd 2018-03-14 23:21:30
       const middlePtNearLeft = getCorners(connectStorage[0],"bl")
       const middlePtNearRight = getCorners(connectStorage[0],"br")
         const middlePtNear =  {
           x: (middlePtNearLeft.x + middlePtNearRight.x)*0.5,
           y: middlePtNearLeft.y 
         }
-
       const middlePtFarLeft = getCorners(connectStorage[1], "tl")
       const middlePtFarRight = getCorners(connectStorage[1], "tr")
         const middlePtFar = {
           x: (middlePtFarLeft.x + middlePtFarRight.x) * 0.5,
           y: middlePtFarLeft.y
         }
+      // [{x,y},{x,y}] 
       return [middlePtNear,middlePtFar]
       
     }
@@ -81,7 +95,7 @@ function listenToConnect() {
 		console.log('pushToStorage -> connectStorage', connectStorage);
   }
 }
-/** 
+  /** 
   * Takes all elements of connectStorage and sorts them according to their distance to the origin
   * 
   */
@@ -96,7 +110,6 @@ function listenToConnect() {
     function euclideanDistaceToOrigin(ele) {
       return Math.sqrt((ele.x)**2 + (ele.y)**2)
     }
-
     /**
      * 
      * 
@@ -106,7 +119,6 @@ function listenToConnect() {
     function transformToPoints(eleNode) {
       return {x:eleNode.getBoundingClientRect().x, y:eleNode.getBoundingClientRect().y}
     }
-
     /**
      * Pt nearest origin is at index 0, farest is last in array
      * get upper left coords
@@ -119,7 +131,6 @@ function listenToConnect() {
     }
 
     function getCorners(ele, whichCorner) {
-      console.log("ele in getCorners: ", ele)
       switch(whichCorner) {
         case "tr":
           return {

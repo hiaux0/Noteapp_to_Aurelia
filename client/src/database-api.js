@@ -50,7 +50,21 @@ export class DatabaseAPI {
       .then(response => response.json())
   }
 
-  
+
+  /**
+   * Patch content of one note
+   * 
+   * @memberOf DatabaseAPI
+   */
+  patch_note_content(route, id, update) {
+    const url = this.baseUrl + route + "/" + id
+    return client.fetch(url, {
+      method: "PATCH",
+      body: json(update)
+    })
+      .then(response => response.json())
+  }
+
   put_database_entry(route,id,update) {
     const url = this.baseUrl + route + "/" + id
     return client.fetch(url,{

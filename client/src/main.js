@@ -1,5 +1,7 @@
 import environment from './environment';
 import 'bootstrap'
+import 'paper'
+
 
 export function configure(aurelia) {
   aurelia.use

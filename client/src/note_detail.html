@@ -1,12 +1,15 @@
 <template>
   <require from='./features/write_anywhere/write-drag-drop'></require>
 
-  <write-drag-drop databasecontent.two-way="dataDetail"></write-drag-drop>
+  <write-drag-drop if.bind="readyToRender"
+    ctp-wdd-testdail.two-way="fromChildWDD"
+    database-content.two-way="dataDetail"></write-drag-drop>
   <!-- <write-drag-drop databasecontent="content.bind: dataDetail"></write-drag-drop> -->
   <!-- <compose databasecontent.two-way="dataDetail" view-model="./features/write_anywhere/write-drag-drop"></compose> -->
+  <button class="btn btn-outline-secondary" click.delegate="patch()">Patch </button>
+  
   <div>
     Id of detail: 
-    <br>
     ${detailId}
     <div if.bind='detailId'>
       <button class="btn btn-outline-success" click.delegate="editDetail()"> 

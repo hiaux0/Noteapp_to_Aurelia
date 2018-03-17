@@ -98,6 +98,14 @@
             "resources": [
               "css/bootstrap.css"
             ]
+          },
+          {
+            "name": "paper",
+            "main": "dist/paper-full",
+            "path": "../node_modules/paper",
+            "resources": [
+              "dist/docs/assets/css/docs.css"
+            ]
           }
         ]
       }

@@ -5,15 +5,18 @@ import { activationStrategy } from 'aurelia-router'
 
 import {DatabaseAPI} from './database-api';
 import {EntryDeleted, EntryUpdated} from './messages'
+import connectArea from "./features/connect_area/connect-area"
 
 const client = new HttpClient()
 
 @inject(DatabaseAPI,EventAggregator)
 export class App {
   route = "/notes"
-  
-  constructor(dbApi,ea) {
-    this.dbApi = dbApi 
+  toggleHide = "Hide"
+  toggleCreateNewNote = 'none'
+
+  constructor(dbAPI,ea) {
+    this.dbAPI = dbAPI 
     this.counter = 1
     this.dataMessage = []
     this.getData()
@@ -38,37 +41,75 @@ export class App {
  
   }
 
-  // attached() {
-  //   document.addEventListener("mousemove", function (ev) {
-  //     this.xcoord = ev.pageX
-  //     console.log(this.xcoord)
-  //     this.ycoord = ev.pageY
-  //   })
-  // }
-
   updateX(ev) {
     this.xcoord = ev.pageX
     this.ycoord = ev.pageY
   }
+
+  createNewNote() {
+    document.getElementById("create-new-note").style.display = "flex"
+    $("#create-new-note > form > input").focus()
+  }
+
+  postNewNote() {
+    this.postData()
+    this.newNoteTitle = ""
+    document.getElementById("create-new-note").style.display = "none"    
+
+  }
+
+    
+
+ 
+
+  /**
+   * Show or hide the navbar
+   * @memberOf App
+   */
+  toggleNavbar() {
+    switch(this.toggleHide) {
+      case "Hide":
+        document.getElementById("custom-navbar").style.display = "none"
+        this.toggleHide = "Show"
+        break
+      case "Show":
+        document.getElementById("custom-navbar").style.display = "flex"
+        this.toggleHide = "Hide"
+        break        
+    }
+  }
    
   getData() {
-    this.dbApi.get_database_entries(this.route)
+    this.dbAPI.get_database_entries(this.route)
       .then(data => {
         this.dataMessage = data
       })
   }
-
   postData() {
-    this.dbApi.post_database_entry(this.route, {
-      content: `${this.counter}`,
-      title: `test ${this.counter}`
+    // console.log(document.getElementById("note-container"))
+    let coords = document.getElementById("note-container").getBoundingClientRect() 
+    let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
+      coords.x,
+      coords.y,
+      coords.height,
+      coords.width
+    )
+    this.dbAPI.post_database_entry(this.route, {
+      title: `${this.newNoteTitle}`,
+      content: {
+        id:1,
+        content: "",
+        position: {
+          x: firstAreaPosition.x,
+          y: firstAreaPosition.y
+        }
+      }
     })
       .then( data => {
         this.dataMessage.push(data)
       })
     this.counter++
   }
-
   dropData() {
     client.fetch("http://localhost:3000/route", {
       method: "delete"
@@ -79,17 +120,19 @@ export class App {
         console.log(data)
       })
   }
-
+  test() {
+    console.log("test success")
+  }
   configureRouter(config, router) {
     config.options.pushState = true;
     config.options.root = '/';
-    config.title = 'Aurelia';
+    config.title = 'Notes';
     config.map([
       { route: ['', 'home'], name: 'home', moduleId: 'router_display', nav: true, title: "Home" 
       },
       { route: 'notes', name: 'notes', moduleId: 'router_display', nav: true, title: 'Notes'
       },
-      { route: 'notes/:id', name: 'routeDetail', moduleId: 'test_detail' 
+      { route: 'notes/:id', name: 'routeDetail', moduleId: 'note_detail' 
       },
     ]);
     this.router = router;
