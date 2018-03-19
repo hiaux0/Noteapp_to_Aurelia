@@ -1,0 +1,29 @@
+#grid-container {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(8em,1fr));
+  grid-gap: 4em;
+  overflow: auto;
+}
+
+svg {
+  position: absolute;
+
+  /* height: 100%; */
+  /* width: 100%; */
+
+}
+
+path {
+  fill: none;
+  stroke: #555;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+circle {
+  fill: cornflowerblue;
+  fill-opacity: 0.3;
+  stroke: cornflowerblue;
+  stroke-width: 3;
+  position: absolute;
+}

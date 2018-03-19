@@ -1,0 +1,30 @@
+<template>
+  <require from="../../stylesheets/play.css"></require>
+
+  <button class="btn btn-outline-secondary"
+    click.delegate="getContainerSize()">
+    Get Container Size
+  </button>
+  <button class="btn btn-outline-secondary" click.delegate="makeDraggable()">
+    Make all draggable
+  </button>
+
+  <div 
+    id="grid-container" 
+    ref="getSizeForSvg">
+    <svg 
+      width.bind="parentSize.width"
+      height.bind="parentSize.height"
+      if.bind="true">
+      <path />
+    </svg>
+    <div repeat.for="num of myArr">
+      <div 
+        class="grid-item" 
+        id="grid-item-${num}" 
+        click.delegate="activatePopover($event,num)">
+        ${num}
+      </div>
+    </div>
+  </div>
+</template>
