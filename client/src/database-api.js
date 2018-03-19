@@ -29,6 +29,7 @@ export class DatabaseAPI {
    * @memberOf DatabaseAPI
    */
   post_database_entry(route,dataObj) {
+    console.log('in post')
     const url = this.baseUrl + route
     return client.fetch(url, {
       body: json(dataObj),
@@ -50,7 +51,6 @@ export class DatabaseAPI {
       .then(response => response.json())
   }
 
-
   /**
    * Patch content of one note
    * 
@@ -66,6 +66,7 @@ export class DatabaseAPI {
   }
 
   put_database_entry(route,id,update) {
+    console.log('in put')
     const url = this.baseUrl + route + "/" + id
     return client.fetch(url,{
       method: "put",

@@ -1,3 +1,4 @@
+
 let connectStorage = []
 
 let connectArea = {
@@ -7,22 +8,26 @@ let connectArea = {
   euclideanDistaceToOrigin,
   rectangle: {
     /**
-     * Return middle point of a rectangle.
-     * @param topLeftPt: {x,y}
+     * Accepts either an object {x,y,height,width} or all args as if
+     * @returns Middle point of given rectangle (coords) as an object {x,y}
      */
-    getMiddlePoint: function(x,y, height, width) {
-      return {
-        x: x + width*0.5,
-        y: y + height*0.5
-      }
-     }
+    getMiddlePoint: function (x, y, height, width) {
+      if(typeof arguments[0] === "object") {
+        let x = arguments[0].x + (arguments[0].width * 0.5)
+        let y = arguments[0].y + (arguments[0].height * 0.5)
+        return {
+          x: Math.round(x),
+          y: Math.round(y)
+        }
+      } else {
+        // console.log(arguments.length,4,"arg list error")
+        return {
+          x: x + width * 0.5,
+          y: y + height * 0.5
+        }
+      }   
+    }
   }
-}
-
-
-
-function drawLineConnection() {
-  connection
 }
 
 /**

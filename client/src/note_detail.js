@@ -1,4 +1,4 @@
-import { TaskQueue, inject } from 'aurelia-framework'
+import { inject } from 'aurelia-framework'
 import {HttpClient,json} from 'aurelia-fetch-client'
 import {EventAggregator} from 'aurelia-event-aggregator'
 import { activationStrategy } from 'aurelia-router';
@@ -9,25 +9,16 @@ import {WriteDragDrop} from './features/write_anywhere/write-drag-drop'
 
 const client = new HttpClient()
 
-@inject(DatabaseAPI, EventAggregator, TaskQueue)
+@inject(DatabaseAPI, EventAggregator)
 export class TestDetail {
   editRequested = true;
   route = "/notes"
   id = null
 
-  constructor(dbAPI, ea, TaskQueue) {
-    this.taskQueue = TaskQueue;    
+  constructor(dbAPI, ea) {
     this.ea = ea
     this.dbAPI = dbAPI 
     this.detail = ""
-  }
-
-  patch() {
-    // get contentStorage from wdd
-    let messageFromChild = this.fromChildWDD
-    console.log("message from child: ", messageFromChild)
-
-    this.dbAPI.patch_note_content(this.route, this.id, messageFromChild)
   }
 
   determineActivationStrategy() {
@@ -62,9 +53,11 @@ export class TestDetail {
   }
 
   saveDetail() {
+    console.log("prepare to save ")
     // register changes to dataDetail
+    console.log(this.fromChildWDD)
     this.dataDetail.title = this.title
-    this.dataDetail.content = this.content
+    this.dataDetail.content = this.fromChildWDD
     let updatedKeys = ["title","content"]
 
     this.dbAPI.put_database_entry(this.route, this.id, this.dataDetail)

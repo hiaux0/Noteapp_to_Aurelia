@@ -1,4 +1,6 @@
 #note-container {
+  overflow:auto;
+
   height: 50vh;
   width: 50wh;
   padding: 0.5em;

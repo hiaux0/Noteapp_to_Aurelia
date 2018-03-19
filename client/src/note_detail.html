@@ -4,16 +4,14 @@
   <write-drag-drop 
     ctp-wdd-testdail.two-way="fromChildWDD"
     database-content.two-way="dataDetail"></write-drag-drop>
-  <!-- <write-drag-drop databasecontent="content.bind: dataDetail"></write-drag-drop> -->
-  <!-- <compose databasecontent.two-way="dataDetail" view-model="./features/write_anywhere/write-drag-drop"></compose> -->
   
   <div>
     <div if.bind='detailId'>
-        <span if.bind='editRequested'>
-            Title
-            <input type="text" value.bind="title" > 
-            <button class="btn btn-outline-secondary" click.delegate="saveDetail()">Save</button>
-        </span>
+      <span if.bind='editRequested'>
+          Title
+          <input type="text" value.bind="title" > 
+          <button class="btn btn-outline-secondary" click.delegate="saveDetail()">Save</button>
+      </span>
       <button class="btn btn-outline-danger" click.delegate="deleteDetail()">
         Delete
       </button>

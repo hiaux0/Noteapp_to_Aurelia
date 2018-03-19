@@ -100,11 +100,17 @@
             ]
           },
           {
-            "name": "paper",
-            "main": "dist/paper-full",
-            "path": "../node_modules/paper",
+            "name": "lodash",
+            "path": "../node_modules/lodash",
+            "main": "lodash.min"
+          },
+          {
+            "name": "gsap",
+            "path": "../node_modules/gsap",
+            "main": "src/minified/TweenLite.min",
             "resources": [
-              "dist/docs/assets/css/docs.css"
+              "Draggable.js",
+              "TweenLite.js"
             ]
           }
         ]

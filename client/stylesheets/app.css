@@ -2,7 +2,6 @@ body {
   background-color: #fff3e0;
   font-size: 20px;
   padding: 1em; }
-
 input {
   outline: none;
 }
@@ -22,7 +21,6 @@ input {
 [class^=grid] {
   border: 1px solid lightgray;
   padding: 0.5em; }
-
 
 /* *********************************************** */
 /* *********************************************** */
@@ -62,6 +60,10 @@ input {
 .sc { background-color: #e64a19; }
 .sc-l { background-color: #ff7d47; }
 .sc-d { background-color: #ac0800; }
+
+.tc   { background-color: #00695c; }
+.tc-l { background-color: #439889; }
+.tc-d { background-color: #003d33; }
 
 /* Custom Bootstrap */
 

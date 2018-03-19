@@ -2,8 +2,10 @@
     <require from="./dynamic_textarea/dynamic-textarea"></require>
     <require from='../../../stylesheets/write-drag-drop.css'></require>
 
-    <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save </button>
+    <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
     <button class="btn btn-outline-secondary" click.delegate="clearCanvas()">Clear </button>
+    <button class="btn btn-outline-secondary" click.delegate="method.draggable.makeDraggable()">Make Draggable </button>
+
     
     <div 
         id="note-container" 

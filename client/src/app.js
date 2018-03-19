@@ -135,9 +135,13 @@ export class App {
             x: firstAreaPosition.x,
             y: firstAreaPosition.y
           }
-        }
+        },
+        containerSize: coords
       })
       .then(data => {
+        if(data.errors) {
+          console.log(data)
+        }
         this.dataMessage.push(data)
       })
     this.counter++
@@ -176,8 +180,22 @@ export class App {
       {
         route: 'notes/:id',
         name: 'routeDetail',
-        moduleId: 'note_detail'
+        moduleId: './note_detail'
       },
+      {
+        route: 'playground',
+        name: 'playground',
+        moduleId: './playground/play',
+        nav: true,
+        title: 'Playground'
+      },
+      {
+        route: 'threelines',
+        name: 'threelines',
+        moduleId: './features/gsap/connect-with-line',
+        nav: true,
+        title: '3 Lines'
+      }
     ]);
     this.router = router;
 

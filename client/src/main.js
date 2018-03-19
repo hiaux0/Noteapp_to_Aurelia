@@ -1,7 +1,7 @@
 import environment from './environment';
+import 'jquery'
 import 'bootstrap'
-import 'paper'
-
+import 'lodash'
 
 export function configure(aurelia) {
   aurelia.use
