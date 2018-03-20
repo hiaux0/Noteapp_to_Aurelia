@@ -4,22 +4,21 @@
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
     <button class="btn btn-outline-secondary" click.delegate="clearCanvas()">Clear </button>
-    <button class="btn btn-outline-secondary" click.delegate="method.draggable.makeDraggable()">Make Draggable </button>
+    <button class="btn btn-outline-secondary" click.delegate="testUnit()">Draggable ${draggableToggle}</button>
 
-    
     <div 
         id="note-container" 
-        dblclick.trigger="removeLast()"
-        click.delegate="multipleCalls($event)" 
+        dblclick.trigger="removeLast()" 
+        click.delegate="multipleCalls($event)"
         class="dropable write-anywhere" 
-         >
+        >
         <dynamic-textarea 
             repeat.for="content of contentStorage" 
             content.two-way="content.content"
             position.bind="content.position"
             hasfocus.bind="true"  
             dyna_textarea_id.bind="content.id"
-            ></dynamic-textarea>
+        ></dynamic-textarea>
     </div>
 
 </template>

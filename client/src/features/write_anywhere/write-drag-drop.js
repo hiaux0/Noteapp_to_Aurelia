@@ -6,10 +6,12 @@ import { NewEntrySelected, EntryUpdated } from "../../messages"
 import helper from '../helper_lib'
 import connectArea from '../connect_area/connect-area'
 import { DatabaseAPI } from '../../database-api';
-import 'gsap'
+// import 'gsap'
 import Draggable from "gsap/Draggable";
+import { configure } from '../../resources/index';
 
 let idCounter = 1;
+let draggableToggle = false
 
 /**
  * Deep diff between two object, using lodash
@@ -32,6 +34,8 @@ _.mixin({ 'deepDifference': deepDifference });
 
 @inject(DatabaseAPI, Element, EventAggregator)
 export class WriteDragDrop {
+  draggableToggle = false
+  draggable = Draggable
   @bindable databaseContent
   @bindable ctpWddTestdail // child to parent (child = wdd, parent = testdetail)
 
@@ -40,13 +44,16 @@ export class WriteDragDrop {
     this.ea = ea
     this.element = element
     this.contentStorage = []
+    
+  }
+
+  testUnit() {
+    this.method.draggable.makeDraggableToggle(Draggable)
   }
 
   attached() {
-    // this.addFromDatabase()
-
-    connectArea.listenToConnect()
-    // on activation get the route/id from
+    // connectArea.listenToConnect()
+    /* on activation get the route/id from */
     this.dbAPI.get_one_database_entry("/notes", this.ctpWddTestdail).then(data => {
       this.contentStorageOne = (data)
       // console.log(this.contentStorageOne)
@@ -74,25 +81,34 @@ export class WriteDragDrop {
 			})
 		})
   }
-	
 	method = {
 		draggable: {
 			/**
 			 * make all dyn TA draggable
 			 * 
 			 */
-			makeDraggable: function() {
-				let noteContainer = document.getElementById('note-container')
-				let children = noteContainer.children
-				console.log(children[0])
-				Array.from(children).map( ele => {
-					console.log(ele.children)
-					Draggable.create(ele.children[0], {
-						onDrag: function(ev) {
-							console.log(ev)
-						}
-					})
-				})
+      makeDraggableToggle: function(Draggable) {
+        console.log("let: ",draggableToggle)
+        switch (draggableToggle) {
+          case false:
+            console.log('false');
+            let that = this
+            console.log(that)
+            Array.from($(".edit")).map( (ele) => {
+              ele.setAttribute("contenteditable",false)
+              Draggable.create(ele);
+            });
+            draggableToggle = true;
+            break;
+          case true:
+            console.log("true")
+            Array.from($(".edit")).map( (ele) => {
+              ele.setAttribute("contenteditable", true)
+              Draggable.get(ele).disable();
+            });
+            draggableToggle = false;
+            break;
+        }
 			}
 		}
 	}
@@ -101,10 +117,6 @@ export class WriteDragDrop {
     console.log(this.contentStorage)
     this.ctpWddTestdail = this.contentStorage
   }
-  // ctpWddTestdailChanged(name, newValue, oldValue) {
-  //     console.log(name)
-  //     console.log(newValue)
-  // }
 
   getConnectStorageSize() {
     connectArea.getConnectStorageSize()
@@ -120,21 +132,7 @@ export class WriteDragDrop {
   multipleCalls(event) {
     this.addContentStorageElement(event)
   }
-  addFromDatabase() { // DEPRECATED
-    const container = document.getElementById("note-container")
-    const pos_of_db_ele = container.getBoundingClientRect()
-    // console.log("this dbcont", this.databasecontent)
-    const cont = this.databaseContent.content
-    this.contentStorage.push({
-			id: idCounter,
-			content: cont,
-			position: {
-				x: pos_of_db_ele.x + 10,
-				y: pos_of_db_ele.y + 10
-			}
-		})
-		++idCounter
-  }
+  
   /** Add textarea at mouse position
    * 
    * 1. Click in id#container to add a textarea at mouseposition
