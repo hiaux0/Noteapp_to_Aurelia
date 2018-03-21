@@ -20,7 +20,7 @@ transpilerOptions.sourceMap = 'inline';
 module.exports = function(config) {
   config.set({
     basePath: '',
-    frameworks: [project.testFramework.id],
+    frameworks: ['jasmine-jquery',project.testFramework.id],
     files: files,
     exclude: [],
     preprocessors: {
@@ -28,7 +28,7 @@ module.exports = function(config) {
       [appSrc]: ['sourcemap']
     },
     'babelPreprocessor': { options: transpilerOptions },
-    reporters: ['progress'],
+    reporters: ['mocha'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,

@@ -3,21 +3,20 @@
     <require from='../../../stylesheets/write-drag-drop.css'></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <button class="btn btn-outline-secondary" click.delegate="clearCanvas()">Clear </button>
-    <button class="btn btn-outline-secondary" click.delegate="testUnit()">Draggable ${draggableToggle}</button>
+    <button class="btn btn-outline-secondary" click.delegate="methods.draggable.makeDraggableToggle()">Draggable is ${draggableToggle}</button>
 
     <div 
         id="note-container" 
         dblclick.trigger="removeLast()" 
-        click.delegate="multipleCalls($event)"
+        click.delegate="addContentStorageElement($event)"
         class="dropable write-anywhere" 
         >
         <dynamic-textarea 
-            repeat.for="content of contentStorage" 
-            content.two-way="content.content"
-            position.bind="content.position"
+            repeat.for="childNotes of childNoteStorage" 
+            content.two-way="childNotes.content"
+            position.two-way="childNotes.position"
             hasfocus.bind="true"  
-            dyna_textarea_id.bind="content.id"
+            dyna_textarea_id.bind="childNotes.id"
         ></dynamic-textarea>
     </div>
 

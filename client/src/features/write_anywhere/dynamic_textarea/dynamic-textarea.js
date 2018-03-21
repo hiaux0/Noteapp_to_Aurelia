@@ -1,6 +1,6 @@
 import { bindable,inject} from 'aurelia-framework'
 
-import drag_drop from '../../drag_drop/au-drag-drop'
+// import drag_drop from '../../drag_drop/au-drag-drop'
 import {WriteDragDrop} from '../write-drag-drop'
 
 let data, id, startLocation, targetLocation;
@@ -18,37 +18,37 @@ export class DynamicTextarea {
     }
 
     created() {
-        document.addEventListener("dragstart", this.dragStart)
-        document.addEventListener("dragover", this.allowDrop)
-        document.addEventListener("drop", this.drop)
+        // document.addEventListener("dragstart", this.dragStart)
+        // document.addEventListener("dragover", this.allowDrop)
+        // document.addEventListener("drop", this.drop)
         this.id = this.element.children[0].id
     }
 
-    getContentStorage() {
+    getContentStorage() { // DEPRECATED
         let temp = this.wdd.contentStorage.filter(x => console.log(x))
 		console.log('DynamicTextarea -> getContentStorage -> temp', temp)
     }
 
-    dragStart(event) { 
-        // console.log("dragStart")
-        // event.target.setAttribute("id",this.id)
-        id = event.target.id
-		// console.log('DynamicTextarea -> dragStart -> id', id)
-        event.dataTransfer.setData("text", id);
+    // dragStart(event) { 
+    //     // console.log("dragStart")
+    //     // event.target.setAttribute("id",this.id)
+    //     id = event.target.id
+	// 	// console.log('DynamicTextarea -> dragStart -> id', id)
+    //     event.dataTransfer.setData("text", id);
         
-    }
+    // }
 
-    allowDrop(event) {
-        // console.log("in dragover")
-        event.preventDefault() 
-    }
+    // allowDrop(event) {
+    //     // console.log("in dragover")
+    //     event.preventDefault() 
+    // }
 
-    drop(event) { 
-        event.preventDefault()
-        drag_drop.dropIt.dropAnywhere(event)
-    }
+    // drop(event) { 
+    //     event.preventDefault()
+    //     drag_drop.dropIt.dropAnywhere(event)
+    // }
 
-    dropAnywhere(event) {
+    dropAnywhere(event) { // #DEPRECATED
         let draggedDataId = event.dataTransfer.getData("text")
         console.log('DynamicTextarea -> drop -> draggedDataId', draggedDataId)
         let draggedData = document.getElementById(draggedDataId)
@@ -100,8 +100,6 @@ export class DynamicTextarea {
         }
     }
 }
-
-
 
     // dragEnd(event) { drag_drop.dragIt.dragEnd(event) }
     // dragEnter(event) { drag_drop.dragIt.dragEnter(event) }
