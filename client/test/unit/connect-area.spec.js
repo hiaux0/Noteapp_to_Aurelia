@@ -11,9 +11,9 @@ describe('euclidean distance', () => {
   })
 })
 
-describe('sort via euclidean distance', () => {
-  it("happy path", () => {
-    expect(connectArea.areaDistancesToOrigin(contentStorage)).toBe(5)
-  })
-})
+// describe('sort via euclidean distance', () => {
+//   it("happy path", () => {
+//     expect(connectArea.areaDistancesToOrigin(contentStorage)).toBe(5)
+//   })
+// })
 
