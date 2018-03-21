@@ -103,8 +103,11 @@ export class WriteDragDrop {
     },
     childNotes: {
       addToPositionHistory: (ele) => {
-        this.childNoteStorage.positionHistory.push( ele.style.transform )
-        console.log(this.childNoteStorage.positionHistory)
+        let storageEle = this.findInChildNoteStorage(ele)
+        console.log('​WriteDragDrop -> storageEle', storageEle);
+        // push new position to history
+        storageEle.positionHistory.push(ele.style.transform)
+        console.log(storageEle.positionHistory)
       },
       /** 
        * When child Note is dragged, save new position to childNoteStorage
@@ -171,56 +174,20 @@ export class WriteDragDrop {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-  addFromDatabaseNew() {
-    // console.log(this.databaseContent)
-    // need to add a check for resize:
-    // get database container (original) coords
-    let originalContainerSize = this.databaseContent.containerSize
-    // get current coords
-    let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
-    // compare
-    let test = _.deepDifference(originalContainerSize, currentContainerSize)
-    // if different resize accordingly
-    this.databaseContent.content.map(ele => {
-      this.childNoteStorage.push({
-        id: ele.id,
-        content: ele.content,
-        position: {
-          x: ele.position.x,
-          y: ele.position.y
-        },
-        // position history in format of Draggable
-        positionHistory: [ "translate3d(0px, 0px, 0px)" ]
-      })
-    })
-    console.log(this.childNoteStorage)
-  }
-  
-  delegateToParent() {
-    console.log('​delegateToParent -> this.childNoteStorage', this.childNoteStorage);
-    console.log('​WriteDragDrop -> delegateToParent -> this.methods.childNotes.getMoved()', this.methods.childNotes.getMoved());
-    // this.methods.childNotes.saveChangesAndDelegateToView() 
-
-    this.ctpWddTestdail = this.childNoteStorage
-  }
-
-  removeLast() {
-    this.childNoteStorage.pop()
-  }
-  
+ 
   /** Add textarea at mouse position
-   * 
-   * 1. Click in id#container to add a textarea at mouseposition
-   *   - If mouseclick is not directly in container textarea will not be created
-   * 2. For the very first textarea a special method is called
-   * 3. For subsequent textareas, create them with as you would expect it
-   * 4. Push everything into childNoteStorage
-   * 
-   * @param event: takes in event to extract target id and position to create element
-   * @returns 
-   * 
-   * @memberOf WriteDragDrop
-   */
+    * 
+    * 1. Click in id#container to add a textarea at mouseposition
+    *   - If mouseclick is not directly in container textarea will not be created
+    * 2. For the very first textarea a special method is called
+    * 3. For subsequent textareas, create them with as you would expect it
+    * 4. Push everything into childNoteStorage
+    * 
+    * @param event: takes in event to extract target id and position to create element
+    * @returns 
+    * 
+    * @memberOf WriteDragDrop
+    */
   addContentStorageElement(event) {
     // check whether target has container id
     if (event.target.id === "note-container" ? false : true) {
@@ -255,4 +222,57 @@ export class WriteDragDrop {
     }
     ++idCounter
   }
+
+  addFromDatabaseNew() {
+    // console.log(this.databaseContent)
+    // need to add a check for resize:
+    // get database container (original) coords
+    let originalContainerSize = this.databaseContent.containerSize
+    // get current coords
+    let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
+    // compare
+    let test = _.deepDifference(originalContainerSize, currentContainerSize)
+    // if different resize accordingly
+    this.databaseContent.content.map(ele => {
+      this.childNoteStorage.push({
+        id: ele.id,
+        content: ele.content,
+        position: {
+          x: ele.position.x,
+          y: ele.position.y
+        },
+        // position history in format of Draggable
+        positionHistory: [ "translate3d(0px, 0px, 0px)" ]
+      })
+    })
+    console.log(this.childNoteStorage)
+  }
+  
+  delegateToParent() {
+    console.log('​delegateToParent -> this.childNoteStorage', this.childNoteStorage);
+    console.log('​WriteDragDrop -> delegateToParent -> this.methods.childNotes.getMoved()', this.methods.childNotes.getMoved());
+    // this.methods.childNotes.saveChangesAndDelegateToView() 
+
+    this.ctpWddTestdail = this.childNoteStorage
+  }
+
+  /**
+   * Takes in HTML element and
+   * @returns corresponding element in storage
+   */
+  findInChildNoteStorage(ele) {
+    let result;
+    let id = ele.id
+    this.childNoteStorage.map( childNote => {
+      if(childNote.id == id) {
+        result = childNote;
+      }
+    })
+    return result
+  }
+
+  removeLast() {
+    this.childNoteStorage.pop()
+  }
+  
 }
