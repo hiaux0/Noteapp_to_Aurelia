@@ -8,6 +8,7 @@ export class Play {
   myArr = _.range(0,12)
   greeting = "Good Morning"
   parentSize = null
+  scrollDifference = 0;
 
   attached() {
     $(function () { // initialize tooltip
@@ -54,7 +55,6 @@ export class Play {
    * @memberOf Play
    */
   drawLine(id1,id2,id3) {
-    // rebind this
     let classThis = this
     // select targets
     let path = document.querySelector("path");
@@ -63,8 +63,15 @@ export class Play {
     let bb = document.getElementById(`grid-item-${id2}`);
     let cc = document.getElementById(`grid-item-${id3}`);
     let targets = [aa,bb,cc];
-    // get coords of targets
+      /**
+       * Get coords of targets
+       * @returns adjusted coords since svg graph will always start at origin
+       */
       function coordi(target) {
+        /**
+         * Transform svg graph to origin
+         * @returns tranformed points
+         */
         function svgGraphToOrigin(x, y) {
           if (typeof arguments[0] === "object") {
             return {
@@ -79,7 +86,7 @@ export class Play {
           }
         }
         let x = target.getBoundingClientRect().x;
-        let y = target.getBoundingClientRect().y;
+        let y = target.getBoundingClientRect().y 
         let transformed = svgGraphToOrigin(x,y)
         return {
           x: Math.round(transformed.x),
@@ -93,8 +100,8 @@ export class Play {
 
     [coordA, coordB, coordC].map( (coord,i) => {
       Draggable.create(targets[i], {
-        onDrag: function() {
-          let that = this.target.getBoundingClientRect()
+        onDrag: (ev) => {
+          let that = ev.target.getBoundingClientRect()
           coord.x = that.x - classThis.parentSize.x ;
           coord.y = that.y - classThis.parentSize.y ;
           updatePath();
@@ -102,33 +109,32 @@ export class Play {
       })
     })
     updatePath();
-
+    console.log(coordA)
+    
     function updatePath() {
       let coordBx = coordB.x * 2 - (coordA.x + coordC.x) / 2;
       let coordBy = coordB.y * 2 - (coordA.y + coordC.y) / 2;
       let d = "M" +[coordA.x, coordA.y]+ "Q"+ [coordBx, coordBy,coordC.x,coordC.y];
+                  
       path.setAttribute("d", d);
     }  
   }
 
   /**
    * As the svg element doesn't start at the origin, we need to transform it
-   * 
-   * 
    */
   getContainerSize() {
     this.parentSize = this.getSizeForSvg.getBoundingClientRect()
     this.drawLine(1, 6, 3)
     // handle scrolling and resizing
-    let that = this
-    $(window).on("scroll", function () {
+    $(window).on("scroll", (ev) => {
       this.parentSize = document.getElementById("grid-container").getBoundingClientRect()
-      that.drawLine( 1, 6, 3)
-    })
-    // prior used $(window) but didnt work (why?)
-    window.addEventListener('resize', () => { 
+      this.drawLine( 1, 6, 3)
+    });
+    window.addEventListener('resize', () => {     // prior used $(window) but didnt work (why?)
       this.parentSize = document.getElementById("grid-container").getBoundingClientRect()
-      that.drawLine( 1, 6, 3)    });
+      this.drawLine( 1, 6, 3);    
+    });
   }
 
   makeDraggable() {
