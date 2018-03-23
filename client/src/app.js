@@ -5,7 +5,7 @@ import { activationStrategy } from 'aurelia-router'
 
 import { DatabaseAPI } from './database-api';
 import { EntryDeleted, EntryUpdated } from './messages'
-import connectArea from "./features/connect_area/connect-area"
+import connectArea from "./features/connect_areas/connect-areas"
 
 const client = new HttpClient()
 
@@ -136,6 +136,7 @@ export class App {
             y: firstAreaPosition.y
           }
         },
+        latestId: 1,
         containerSize: coords
       })
       .then(data => {
@@ -146,6 +147,35 @@ export class App {
       })
     this.counter++
   }
+
+  postNotebook() {
+    let NotebookObject = {
+      _id: "5ab3e23b5856a710664af067",
+      title: "TestNotebook",
+      topic: {
+        _id: "5ab3e29d5856a710664af06b",
+        title: "Learning Nested Documents",
+        notes: [
+          {
+            _id: "5ab3e29d5856a710664af06c",
+            content: "some"
+          },
+          {
+            _id: "5ab3e29d5856a710664af061",
+            content: "test"
+          }
+        ]
+      }
+    }
+    console.log(NotebookObject)
+    this.dbAPI.post_database_entry(this.route,NotebookObject)
+    .then(data => {
+      if(data.errors) console.log(data)
+      console.log(data)
+    })
+
+  }
+  
   dropData() {
     client.fetch("http://localhost:3000/route", {
         method: "delete"
@@ -169,6 +199,13 @@ export class App {
         moduleId: 'router_display',
         nav: true,
         title: "Home"
+      },
+      {
+        route: 'notebooks',
+        name: 'notebooks',
+        moduleId: './views/notebooks.view',
+        nav: true,
+        title: 'Notebooks'
       },
       {
         route: 'notes',

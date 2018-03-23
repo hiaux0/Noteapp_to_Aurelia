@@ -1,5 +1,3 @@
-
-
 export class ConnectWithLine {
   attached() {
     // select all objects

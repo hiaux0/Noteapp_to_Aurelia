@@ -1,17 +1,18 @@
 <template > 
     <require from="./dynamic_textarea/dynamic-textarea"></require>
     <require from='../../../stylesheets/write-drag-drop.css'></require>
+    <require from="../connect_areas/connect-areas" ></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <button class="btn btn-outline-secondary" click.delegate="methods.draggable.makeDraggableToggle()">Draggable is ${draggableToggle}</button>
-    <!-- <button class="btn btn-outline-secondary" click.delegate="methods.childNotes.getPreviousPosition()">Get Previous Position</button> -->
+    <button class="btn btn-outline-secondary" click.delegate="methods.draggable.makeDraggableToggle()">Draggable is ${draggableToggle?'on':'off'}</button>
 
     <div 
         id="note-container" 
         dblclick.trigger="removeLast()" 
-        click.delegate="addContentStorageElement($event)"
+        click.delegate="methods.dynamicTextarea.addDynamicChildNote($event)"
         class="dropable write-anywhere" 
         >
+        <connect-areas></connect-areas>
         <dynamic-textarea 
             repeat.for="childNotes of childNoteStorage" 
             content.two-way="childNotes.content"

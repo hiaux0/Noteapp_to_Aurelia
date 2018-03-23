@@ -5,6 +5,13 @@ const client = new HttpClient()
 export class DatabaseAPI {
   baseUrl = 'http://localhost:3000'
 
+  get_mongodb_id() {
+    const route = "/mongodbid"
+    const url = this.baseUrl + route
+    return client.fetch(url)
+      .then(response => response.json())
+  }
+
   /**
    * 
    * 
