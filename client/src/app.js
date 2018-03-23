@@ -12,7 +12,7 @@ const client = new HttpClient()
 @inject(DatabaseAPI, EventAggregator)
 export class App {
   route = "/notes"
-  toggleHide = "Hide"
+  navbarHidden = true
   toggleCreateNewNote = 'none'
   counter = 1
   dataMessage = []
@@ -42,8 +42,13 @@ export class App {
         }
       })
     })
-  }
 
+  }
+  attached() {
+    // navbar toggle option
+    this.navbarHidden ? this.navbarToggleStyle = 'display:none' : this.navbarToggleStyle = 'display:flex'
+
+  }
     /**
    * If double click on Note title, make it editable
    * @memberOf App
@@ -99,14 +104,14 @@ export class App {
    * @memberOf App
    */
   toggleNavbar() {
-    switch (this.toggleHide) {
-      case "Hide":
+    switch (this.navbarHidden) {
+      case false:
         document.getElementById("custom-navbar").style.display = "none"
-        this.toggleHide = "Show"
+        this.navbarHidden = true
         break
-      case "Show":
+      case true:
         document.getElementById("custom-navbar").style.display = "flex"
-        this.toggleHide = "Hide"
+        this.navbarHidden = false
         break
     }
   }
@@ -203,7 +208,7 @@ export class App {
       {
         route: 'notebooks',
         name: 'notebooks',
-        moduleId: './views/notebooks.view',
+        moduleId: './views/notebooks',
         nav: true,
         title: 'Notebooks'
       },

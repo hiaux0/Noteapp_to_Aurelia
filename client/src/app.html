@@ -5,7 +5,7 @@
   <nav-bar router.bind="router"></nav-bar>
 
 <!------------------------ Navbar ------------------------>
-  <nav class="navbar navbar-expand-lg navbar-light" id="custom-navbar"> 
+  <nav class="navbar navbar-expand-lg navbar-light" id="custom-navbar" style.bind="navbarToggleStyle"> 
     <a class="navbar-brand" href="">Noteapp</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
       aria-expanded="false" aria-label="Toggle navigation">
@@ -34,58 +34,7 @@
   </nav>
 <!------------------------ Navbar ------------------------>
   
-  <div class="main-container" mousemove.delegate="updateX($event)">
-    <div class="grid-sidebar">
-      <div>
-        <button class='btn btn-outline-secondary' click.delegate="toggleNavbar()"> ${toggleHide} Navbar</button>
-      </div>
-      <div id="accordion">
-        <div class="card pc">
-          <div class="card-header" id="headingOne">
-            <h5 class="mb-0">
-              <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                First Note group
-              </button>
-            </h5>
-          </div>
-          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-            <div class="card-body">
-              <div repeat.for='dataMess of dataMessage'>
-                <div if.bind="dataMess._id">
-                  <a 
-                    route-href="route: routeDetail; params.bind: {id:dataMess._id}"
-                    dblclick.delegate="changeNoteName($event)" >
-                    ${dataMess.title}
-                  </a>
-                </div>
-              </div>
-              <div id="create-new-note">
-                <form action="" submit.trigger="postNewNote()">
-                  <input type="text" value.bind="newNoteTitle">
-                  <button class="btn btn-outline-success"> 
-                    Create
-                  </button>
-                </form>
-              </div>
-              <!-- <div>${newNoteTitle}</div> -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <button class="btn btn-outline-secondary" click.delegate="createNewNote()">
-          Create New Note
-        </button>
-      </div>
-      <div>
-        <button class="btn btn-outline-danger" click.delegate="dropData()">DROP ALL DATA</button>
-      </div>
-      <div>
-        <button class="btn btn-outline-danger" click.delegate="postNotebook()">Test new post</button>
-      </div>
-    </div>
-    
-    <router-view class="grid-view"></router-view>
+    <router-view class=""></router-view>
 
   </div>
 
