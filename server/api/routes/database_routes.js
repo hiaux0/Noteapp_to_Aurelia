@@ -1,6 +1,5 @@
 module.exports = function (app) {
   const noteApp = require("../controllers/database_controller")
-  const noteBook = require("../models/notebook")
 
 // change noteApp and its methods
 // turn off match-whole-word search functionality for easy changing 
@@ -14,6 +13,29 @@ module.exports = function (app) {
  patch_note_content
 */
 
+  // Notebooks route
+  app.route('/notebooks')
+    .get(noteApp.notebooks.mainRoute.get_notebooks)
+    .post(noteApp.notebooks.mainRoute.create_a_notebook)
+
+  app.route('/notebooks/:nbid')
+    .get(noteApp.notebooks.idRoute.find_a_notebook)
+    .patch(noteApp.notebooks.idRoute.patch_notebook)
+    .put(noteApp.notebooks.idRoute.update_a_notebook)
+    .delete(noteApp.notebooks.idRoute.delete_a_notebook)
+
+  // Notebook/Topic route
+  app.route('/notebooks/:nbid/topics')
+    .get(noteApp.notebooks.mainRoute.get_notebooks)
+    .post(noteApp.notebooks.mainRoute.create_a_notebook)
+
+  app.route('/notebooks/:nbid/topics/:tid')
+    .get(noteApp.notebooks.idRoute.find_a_notebook)
+    .patch(noteApp.notebooks.idRoute.patch_notebook)
+    .put(noteApp.notebooks.idRoute.update_a_notebook)
+    .delete(noteApp.notebooks.idRoute.delete_a_notebook)
+
+  // Notes route
   app.route('/notes')
     .get(noteApp.list_all_note)
     .post(noteApp.create_a_note)
