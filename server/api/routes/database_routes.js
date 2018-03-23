@@ -1,5 +1,6 @@
 module.exports = function (app) {
   const noteApp = require("../controllers/database_controller")
+  const noteBook = require("../models/notebook")
 
 // change noteApp and its methods
 // turn off match-whole-word search functionality for easy changing 
@@ -23,4 +24,7 @@ module.exports = function (app) {
     .patch(noteApp.patch_note_content)
     .put(noteApp.update_a_note)
     .delete(noteApp.delete_a_note)
+  
+  app.route('/mongodbid')
+    .get(noteApp.get_mongodb_id)
 }

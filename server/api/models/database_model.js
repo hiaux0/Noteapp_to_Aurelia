@@ -7,6 +7,11 @@ const NoteAppSchema = new Schema({
     type: String
   },
   content: Array ,
+  containerSize: {
+    type: {},
+    // required: "Please specify container size. Should be of form getBoundingClient()"
+  },
+  latestId: Number,
   family_tree: {
     parents: [{}],
     siblings: [{}],

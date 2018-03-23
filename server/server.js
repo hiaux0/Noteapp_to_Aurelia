@@ -2,9 +2,8 @@ const bodyParser = require('body-parser'),
       mongoose   = require('mongoose'),
       express    = require('express'),
       cors       = require('cors')
-      
-const app = express()
 
+const app = express()
 //////////////////////////////////
 //
 //      Mongo SETUP / mongoose
