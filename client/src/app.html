@@ -1,6 +1,7 @@
 <template >
   <require from="bootstrap/css/bootstrap.css"></require>
   <require from="../stylesheets/app.css"></require>
+  <require from="./views/partials/nav-bar.html"></require>
 
   <nav-bar router.bind="router"></nav-bar>
 
@@ -33,9 +34,8 @@
     </div>
   </nav>
 <!------------------------ Navbar ------------------------>
+  <button class='btn btn-outline-secondary' click.delegate="toggleNavbar()"> ${navbarHidden?"Show":"Hide"} Navbar </button>
   
-    <router-view class=""></router-view>
-
-  </div>
+    <router-view></router-view>
 
 </template>

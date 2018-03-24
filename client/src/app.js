@@ -12,7 +12,7 @@ const client = new HttpClient()
 @inject(DatabaseAPI, EventAggregator)
 export class App {
   route = "/notes"
-  navbarHidden = true
+  navbarHidden = false
   toggleCreateNewNote = 'none'
   counter = 1
   dataMessage = []
@@ -21,11 +21,19 @@ export class App {
     counter: 0,
     last: 0
   }
+  xcoord // utils for displaying mouth position in x-y coords
+  ycoord
+
+  // vars = {
+  //   utils: {
+  //     xcoord: undefined,
+  //     ycoord: undefined
+  //   }
+  // }
   
   constructor(dbAPI, ea) {
     this.dbAPI = dbAPI
     this.getData()
-
     ea.subscribe(EntryDeleted, msg => {
       this.dataMessage = this.dataMessage.filter(ele =>
         ele._id !== msg.deletedId
@@ -81,11 +89,10 @@ export class App {
     this.oneNameEditAtATime.counter = 1
   
   }
-
-  updateX(ev) {
-    this.xcoord = ev.pageX
-    this.ycoord = ev.pageY
-  }
+  // updateX(ev) {
+  //   this.xcoord = ev.pageX
+  //   this.ycoord = ev.pageY
+  // }
 
   createNewNote() {
     document.getElementById("create-new-note").style.display = "flex"
@@ -199,47 +206,17 @@ export class App {
     config.options.root = '/';
     config.title = 'Notes';
     config.map([{
-        route: ['', 'home'],
-        name: 'home',
-        moduleId: 'router_display',
-        nav: true,
-        title: "Home"
-      },
-      {
-        route: 'notebooks',
-        name: 'notebooks',
-        moduleId: './views/notebooks',
-        nav: true,
-        title: 'Notebooks'
-      },
-      {
-        route: 'notes',
-        name: 'notes',
-        moduleId: 'router_display',
-        nav: true,
-        title: 'Notes'
-      },
-      {
-        route: 'notes/:id',
-        name: 'routeDetail',
-        moduleId: './note_detail'
-      },
-      {
-        route: 'playground',
-        name: 'playground',
-        moduleId: './playground/play',
-        nav: true,
-        title: 'Playground'
-      },
-      {
-        route: 'threelines',
-        name: 'threelines',
-        moduleId: './features/gsap/connect-with-line',
-        nav: true,
+        route: ['', 'home'],name: 'home',       moduleId: 'router_display', nav: true, title: "Home" },
+      {route: 'notebooks',  name: 'notebooks',  moduleId: './routes/notebooks-router', nav: true, title: 'Notebooks'},
+      {route: 'notes',      name: 'notes',      moduleId: 'router_display', nav: true, title: 'Notes' },
+      {route: 'notes/:id',  name: 'routeDetail',moduleId: './note_detail' },
+      {route: 'playground', name: 'playground', moduleId: './playground/play', nav: true, title: 'Playground' },
+      {route: 'threelines', name: 'threelines', moduleId: './features/gsap/connect-with-line', nav: true,
         title: '3 Lines'
       }
     ]);
     this.router = router;
+    console.log(this.router)
 
   }
 }

@@ -1,16 +1,11 @@
 <template>
-  <require from="../../stylesheets/notebooks.css" ></require>
-  <button 
-    class='btn btn-outline-secondary' 
-    click.delegate="toggleNavbar()"
-    > ${navbarHidden?"Show":"Hide"} Navbar </button>
+  <require from="../../stylesheets/notebooks.css"></require>
+
   <div class="main-container" mousemove.delegate="updateX($event)">
     <div class="grid-sidebar">
       <div>
-        <button class="btn btn-outline-secondary"
-         click.delegate="methods.http.getNotebooks()">Get Notebook</button>
-        <button class="btn btn-outline-secondary"
-         click.delegate="postNotebook">Create Notebook</button>
+        <button class="btn btn-outline-secondary" click.delegate="methods.http.getNotebooks()">Get Notebook</button>
+        <button class="btn btn-outline-secondary" click.delegate="postNotebook">Create Notebook</button>
         <div id="accordion">
           <div class="card pc">
             <div class="card-header" id="headingOne">
@@ -24,9 +19,8 @@
               <div class="card-body">
                 <div repeat.for='topic of mockData.topics'>
                   <div if.bind="topic._id">
-                    ${router}
                     <a route-href="route: topicsDetail; params.bind: {tid:topic._id}" dblclick.delegate="changeNoteName($event)">
-                     ${topic.title}
+                      ${topic.title}
                     </a>
                   </div>
                 </div>
@@ -36,16 +30,16 @@
                     <button class="btn btn-outline-success">
                       Create
                     </button>
-                    <button type="reset" class="btn btn-outline-danger" id="cancel-topic-creation-btn" click.trigger="methods.topics.cancelTopicCreation($event)"> Cancel </button>
+                    <button type="reset" class="btn btn-outline-danger" id="cancel-topic-creation-btn" click.trigger="methods.topics.cancelTopicCreation($event)">
+                      Cancel </button>
                   </form>
-                  
+
                 </div>
                 <!-- <div>${newNoteTitle}</div> -->
               </div>
             </div>
           </div>
-          <div>
-            <button class="btn btn-outline-secondary" click.delegate="createNewNote()">
+          <div> <button class="btn btn-outline-secondary" click.delegate="createNewNote()">
               Create New Note
             </button>
           </div>
@@ -53,7 +47,7 @@
       </div>
     </div>
     <router-view class="grid-view">
-      
+
     </router-view>
   </div>
 </template>

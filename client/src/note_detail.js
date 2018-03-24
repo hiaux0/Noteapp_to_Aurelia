@@ -21,10 +21,10 @@ export class TestDetail {
     this.detail = ""
   }
 
-  determineActivationStrategy() {
-    // return "invoke-lifecycle"
-    return "replace"
-  }
+  // determineActivationStrategy() {
+  //   // return "invoke-lifecycle"
+  //   return "replace"
+  // }
 
   activate(params, routeConfig) {
     this.routeConfig = routeConfig;
