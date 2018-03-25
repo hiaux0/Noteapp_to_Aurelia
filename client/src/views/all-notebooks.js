@@ -2,20 +2,18 @@ import {inject} from 'aurelia-framework'
 
 import {App} from '../app'
 import { DatabaseAPI } from '../database-api';
-import { NotebooksRouter} from '../routes/notebooks-router'
 
-@inject(App, DatabaseAPI, NotebooksRouter)
+@inject(App, DatabaseAPI)
 export class AllNotebooks {
-  constructor(app,dbAPI, nbRouter) {
+  constructor(app,dbAPI) {
     this.greeting = 'Display All notebooks here'
     this.app = app
     this.dbAPI = dbAPI
-    // this.nbRouter = nbRouter
-    // this.router = this.nbRouter.router
   }
-  updateX(ev) {
-    this.app.xcoord = ev.pageX
-    this.app.ycoord = ev.pageY
+
+  determineActivationStrategy() {
+    // return "invoke-lifecycle"
+    return "replace"
   }
 
   mockData = {
@@ -70,7 +68,24 @@ export class AllNotebooks {
         ev.preventDefault()
         document.getElementById("create-new-note").style.display = "none"
       }
+    },
+    utils: {
+      updateX: (ev) => {
+        this.app.xcoord = ev.pageX
+        this.app.ycoord = ev.pageY
+      }
     }
   }
-
+  configureRouter(config, router) {
+    config.options.pushState = true;
+    config.options.root = '/notebooks';
+    config.title = 'Notebooks';
+    config.map([
+      { route: '', redirect: 'topics', },
+      // { route: '/no', name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
+      { route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
+      { route: 'topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
+    ]);
+    this.router = router;
+  }
 }

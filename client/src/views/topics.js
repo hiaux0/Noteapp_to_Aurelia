@@ -9,4 +9,8 @@ export class Topics {
     this.AllNotebooks = AllNotebooks
     this.mockData = this.AllNotebooks.mockData
   }
+
+  created() {
+    this.topicId = (this.AllNotebooks.router.currentInstruction.params.tid)
+  }
 }
