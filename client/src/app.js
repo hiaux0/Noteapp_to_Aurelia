@@ -208,6 +208,7 @@ export class App {
     config.map([{
         route: ['', 'home'],name: 'home',       moduleId: 'router_display', nav: true, title: "Home" },
       {route: 'notebooks',  name: 'notebooks',  moduleId: './views/all-notebooks', nav: true, title: 'Notebooks'},
+      // {route: 'notebooks',  name: 'notebooks',  moduleId: 'router_display', nav: true, title: 'Notebooks'},
       {route: 'notes',      name: 'notes',      moduleId: 'router_display', nav: true, title: 'Notes' },
       {route: 'notes/:id',  name: 'routeDetail',moduleId: './note_detail' },
       {route: 'playground', name: 'playground', moduleId: './playground/play', nav: true, title: 'Playground' },

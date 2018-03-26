@@ -1,6 +1,9 @@
 <template>
   <require from="../../stylesheets/notebooks.css"></require>
 
+  <button class="btn btn-outline-secondary"
+    click.delegate="methods.http.topics.getTopicsFromNotebook(mockData._id)"
+    >Get Topics From Notebook</button>
   <div class="main-container" mousemove.delegate="methods.utils.updateX($event)">
     <div class="grid-sidebar">
       <div>

@@ -12,5 +12,17 @@ export class Topics {
 
   created() {
     this.topicId = (this.AllNotebooks.router.currentInstruction.params.tid)
+    // let arr = this.methods.mockData.filterTopic(this.topicId)
+    // console.log(arr[0].notes)
+  }
+
+  methods = {
+    mockData: {
+      filterTopic: (topicId) => {
+        return this.mockData.topics.filter( ele => this.methods.mockData.filterIdOfTopic(ele,topicId)  )
+      },
+      filterIdOfTopic: (topicsArray, topicId) =>  
+        (topicsArray._id == topicId) ? true : false 
+    }
   }
 }

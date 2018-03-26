@@ -11,10 +11,7 @@ export class AllNotebooks {
     this.dbAPI = dbAPI
   }
 
-  determineActivationStrategy() {
-    // return "invoke-lifecycle"
-    return "replace"
-  }
+  determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
 
   mockData = {
     _id: '15shts4eohts',
@@ -42,12 +39,12 @@ export class AllNotebooks {
         notes: [
           {
             id: 1,
-            content: 'important note',
+            content: 'dasdasdaetgfhd',
             position: { x: 329, y: 264 },
           },
           {
             id: 2,
-            content: 'not so cool note here',
+            content: '45efdfgdfga',
             position: { x: 389, y: 229 }
           }
         ]
@@ -61,6 +58,12 @@ export class AllNotebooks {
           .then(data => {
             console.log(data)
           })
+      },
+      topics: {
+        getTopicsFromNotebook: (nb_id) => {
+          this.dbAPI.get_topics_from_notebook("/notebooks",nb_id)
+            .then(notebook => console.log(notebook))
+        }
       }
     },
     topics: {
@@ -81,10 +84,12 @@ export class AllNotebooks {
     config.options.root = '/notebooks';
     config.title = 'Notebooks';
     config.map([
-      { route: '', redirect: 'topics', },
-      // { route: '/no', name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
-      { route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
-      { route: 'topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
+      { route: '', redirect: 'all', },
+      // { route: ['','notebooks'], name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
+      {route: 'all', name: 'allNotebooks', title: "All Notebooks", moduleId: "../views/allNbs"},
+      {route: '/:nbid', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/all-notebooks"},
+      {route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
+      {route: 'topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
     ]);
     this.router = router;
   }
