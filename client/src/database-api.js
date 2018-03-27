@@ -19,8 +19,9 @@ export class DatabaseAPI {
   }
 
   post_notebook(route, dataObj) {
-    console.log('in post')
+    console.log('dbapi in post')
     const url = this.baseUrl + route
+    console.log('​DatabaseAPI -> post_notebook -> url', url);
     return client.fetch(url, {
       body: json(dataObj),
       method: "post"

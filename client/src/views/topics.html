@@ -1,3 +1,53 @@
 <template>
- ${topicId}
+ <!-- ${topicId} -->
+  <button class="btn btn-outline-secondary" click.delegate="methods.http.topics.getTopicsFromNotebook(mockData._id)">Get Topics From Notebook</button>
+  <div class="main-container" mousemove.delegate="methods.utils.updateX($event)">
+    <div class="grid-sidebar">
+      <div>
+        <button class="btn btn-outline-secondary" click.delegate="methods.http.getNotebooks()">Get Notebook</button>
+        <button class="btn btn-outline-secondary" click.delegate="postNotebook">Create Notebook</button>
+        <div id="accordion">
+          <div class="card pc">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  ${mockData.title}
+                </button>
+              </h5>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                <div repeat.for='topic of mockData.topics'>
+                  <div if.bind="topic._id">
+                    <a route-href="route: topicsDetail; params.bind: {nbid:nbId, tid:topic._id}" dblclick.delegate="changeNoteName($event)">
+                      ${topic.title}
+                    </a>
+                  </div>
+                </div>
+                <div id="create-new-note">
+                  <form action="" submit.trigger="postNewNote()">
+                    <input type="text" value.bind="newNoteTitle">
+                    <button class="btn btn-outline-success">
+                      Create
+                    </button>
+                    <button type="reset" class="btn btn-outline-danger" id="cancel-topic-creation-btn" click.trigger="methods.topics.cancelTopicCreation($event)">
+                      Cancel </button>
+                  </form>
+                </div>
+                <!-- <div>${newNoteTitle}</div> -->
+              </div>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-outline-secondary" click.delegate="createNewNote()">
+              Create New Note
+            </button>
+          </div>
+      </div>
+      </div>
+    </div>
+    <div class="grid-view">
+      ${topicId}
+    </div>
+  </div>
 </template>
