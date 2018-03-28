@@ -5,6 +5,18 @@
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
     <button class="btn btn-outline-secondary" click.delegate="m.draggable.makeDraggableToggle()">Draggable is ${draggableToggle?'on':'off'}</button>
+    <button class="btn btn-outline-secondary"
+        click.delegate="m.topics.reveal()"> 
+        Reveal database content
+    </button>
+    <button class="btn btn-outline-secondary"
+        click.delegate="m.topics.validateTopicSchema()"> 
+        valid topic schema
+    </button>
+    <button class="btn btn-outline-secondary"
+        click.delegate="m.topics.getTopicFromNotebook()"> 
+        Get this topic
+    </button>
 
     <div 
         id="note-container" 
@@ -20,6 +32,7 @@
             hasfocus.bind="true"  
             dyna_textarea_id.bind="childNotes.id"
         ></dynamic-textarea>
+        ${reveal}
     </div>
 
 </template>

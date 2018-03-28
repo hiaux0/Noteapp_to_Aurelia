@@ -87,6 +87,7 @@ post_new_topic_to_notebook(nb_id, new_t) {
   console.log("new topic to nb")
   // get notebook
   const url = this.baseUrl + "/notebooks/" + nb_id + "/topics"
+  console.log(new_t)
   return client.fetch(url, {
     body: json(new_t),
     method: 'POST'
@@ -97,16 +98,16 @@ post_new_topic_to_notebook(nb_id, new_t) {
 get_topic_from_notebook(nb_id, t_id) {
   const url = this.baseUrl + "/notebooks/" + nb_id + "/topics/" + t_id
   return client.fetch(url)
-    .then(topic => {
-      console.log(topic)
-      return topic.json()
-    })
+    .then(response => {
+      let payload = response.json()
+      return payload  
+    })// #BUG I receive the topic but it has 3 extra keys: content,id,position, which are all empty
+    // if I GET the database address or via postman the payload is correct however
+
 }
 put_topic_from_notebook(nb_id, t_id, t_update) {
   console.log("in put t from notebook")
-  console.log("with req.body: ", t_update)
   const url = this.baseUrl + "/notebooks/" + nb_id + "/topics/" + t_id
-  console.log("to url: ",url)
   return client.fetch(url, {
     method: "PUT",
     body: json(t_update),
@@ -115,7 +116,7 @@ put_topic_from_notebook(nb_id, t_id, t_update) {
 delete_a_topic_from_notebook(nb_id, t_id) {
   const url = this.baseUrl + "/notebooks/" + nb_id + "/topics" + t_id
   return client.fetch(url, {
-    methods: "DELETE"
+    method: "DELETE"
   }).then(response => response.json())
 }
 

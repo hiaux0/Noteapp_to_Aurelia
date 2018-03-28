@@ -11,7 +11,7 @@ export class NotebooksRouter {
     this.dbAPI = dbAPI
   }
 
-  determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
+  // determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
 
   mockData = {
     _id: '15shts4eohts',
@@ -87,7 +87,7 @@ export class NotebooksRouter {
       { route: '', redirect: 'all', },
       // { route: ['','notebooks'], name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
       { route: 'all', name: 'allNotebooks', title: "All Notebooks", moduleId: "../views/all-notebooks" },
-      { route: '/:nbid', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/topics" },
+      { route: '/:nbid/topics', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/topics" },
       { route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
       { route: '/:nbid/topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
     ]);

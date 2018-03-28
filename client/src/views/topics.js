@@ -18,21 +18,18 @@ export class Topics {
   activate(params) {
     this.nbId = params.nbid
     this.tId = params.tid
+    console.log('activated')
     return this.m.http.getTopicsFromNotebook(this.nbId)
   }
+
+  determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
 
   m = {
     http: {
       createNewTopic: () => {
        
       },
-      getTopicFromNotebook: () => {
-
-        this.dbAPI.get_topic_from_notebook(this.nbId, this.tId)
-          .then(topic => {
-            console.log(topic)
-          })
-      },
+      
       getTopicsFromNotebook: (nbId) => {
         this.dbAPI.get_topics_from_notebook('/notebooks', nbId)
           .then(data => {
@@ -45,19 +42,21 @@ export class Topics {
         console.log(this.newEmptyTopicTitle)
         let new_t = {
           title: this.newEmptyTopicTitle,
-          notes: []
+          notes: [],
+          containerSize: document.getElementById('note-container').getBoundingClientRect()
         }
+        console.log(new_t.containerSize)
         this.dbAPI.post_new_topic_to_notebook(this.nbId, new_t).then(data => {
           console.log(data)
           this.currentNotebook=data
           document.getElementById("create-new-note-db").style.display = "none"
         })
       },
-      postTopicsToNotebook: () => {
+      postNotesToTopic: () => {
         console.log(this.notesFromWDD)
         this.dbAPI.put_topic_from_notebook(this.nbId, this.tId,this.notesFromWDD)
           .then(data => {
-            console.log(data)
+            // console.log(data)
           })
       },
     },

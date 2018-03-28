@@ -29,11 +29,12 @@ function deepDifference(object, base) {
 }
 _.mixin({ 'deepDifference': deepDifference });
 
-@inject(DatabaseAPI, Element, EventAggregator)
+@inject(DatabaseAPI, Element, EventAggregator, Router)
 export class WriteDragDrop {
   draggableToggle = false
   Draggable = Draggable
   firstDrag = true
+  currentTopic
   /**
    * Should be of the from
    * 
@@ -51,11 +52,12 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(dbAPI, element, ea) {
+  constructor(dbAPI, element, ea, router) {
     this.dbAPI = dbAPI
     this.ea = ea
     this.element = element
     this.childNoteStorage = []
+    this.router = router
   }
 
   attached() {
@@ -64,6 +66,8 @@ export class WriteDragDrop {
     // this.dbAPI.get_one_database_entry("/notes", this.ctpWddTopics).then(data => {
     //   this.m.init.addFromDatabaseNew()
     // })
+    console.log('new?')
+    this.m.topics.getTopicFromNotebook()
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,6 +128,7 @@ export class WriteDragDrop {
         let movedElements = document.getElementsByClassName('movedDueDrag')
         // loop through all ele with class
         _.forOwn(movedElements, (movedEle, key) => {
+          console.log('​WriteDragDrop -> saveChangesOfDragged');
           let id = movedEle.id
           let newPosition = {
             x: movedEle.getBoundingClientRect().x,
@@ -190,6 +195,7 @@ export class WriteDragDrop {
        * Initialize database content with databaseContent received from note_detail
        */
       addFromDatabaseNew: () => {
+        console.log('in here')
             // need to add a check for resize: #TODO 2018-03-22 00:14:43
             // get database container (original) coords
             let originalContainerSize = this.databaseContent.containerSize
@@ -272,6 +278,40 @@ export class WriteDragDrop {
           this.childNoteStorage.push(tempobj)
         }
         this.databaseContent.latestId = idCounter++
+      }
+    },
+    topics: {
+      getTopicFromNotebook: () => {
+        this.router
+        console.log('get one topic')
+        let nbId = this.router.currentInstruction.params.nbid
+        let tId = this.router.currentInstruction.params.tid
+        this.dbAPI.get_topic_from_notebook(nbId, tId)
+          .then(topic => {
+            if(topic.error) {return topic}
+            console.log(topic[0].topics[0].notes)
+            this.childNoteStorage = topic[0].topics[0].notes
+            console.log('​WriteDragDrop -> this.childNoteStorage', this.childNoteStorage);
+            
+          })
+      },
+      reveal: () => {
+        // databaseContent provides me the whole notebook
+        console.log(this)
+        console.log('​WriteDragDrop -> this.currentTopic', this.currentTopic);
+        this.reveal = this.currentTopic
+        console.log('​WriteDragDrop -> this.reveal', this.reveal);
+        this.allChildNotes = this.reveal
+        console.log('​WriteDragDrop -> this.allChildNotes', this.allChildNotes);
+        this.childNoteStorage = this.allChildNotes
+      },
+      validateTopicSchema: () => {
+        let topic = {
+          title: this.currentTopic[0].topics[0].title,
+          notes: this.currentTopic[0].topics[0].content,
+          containerSize: document.getElementById('note-container').getBoundingClientRect()
+        }
+        console.log(topic)
       }
     }
 	}
