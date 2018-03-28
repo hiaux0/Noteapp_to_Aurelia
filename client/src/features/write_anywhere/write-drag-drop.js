@@ -44,9 +44,10 @@ export class WriteDragDrop {
    * 
    * @memberOf WriteDragDrop
    */
-  @bindable databaseContent
+  // @bindable databaseContent
+  @bindable receiveCurrentTopic
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
-  @bindable latestId
+  @bindable waitForTopicClicked //boolean
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -65,6 +66,7 @@ export class WriteDragDrop {
   }
 
   attached() {
+    console.log("wdd attached")
     this.m.topics.getTopicFromNotebook()
   }
 
@@ -192,34 +194,34 @@ export class WriteDragDrop {
       /** 
        * Initialize database content with databaseContent received from note_detail
        */
-      addFromDatabaseNew: () => {
-        console.log('in here')
-            // need to add a check for resize: #TODO 2018-03-22 00:14:43
-            // get database container (original) coords
-            let originalContainerSize = this.databaseContent.containerSize
-            // get current coords
-            let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
-            // compare
-            let test = _.deepDifference(originalContainerSize, currentContainerSize)
-            // if different resize accordingly
-        // idCounter = this.databaseContent.latestId #TODO 2018-03-27 17:36:01 uncomment when notebooks routes are finished
-        this.databaseContent.content.map(ele => { //$WORKINGON_STEP2
-          this.childNoteStorage.push({
-            id: ele.id,
-            content: ele.content,
-            position: {
-              x: ele.position.x,
-              y: ele.position.y
-            },
-            // position history in format of Draggable
-            positionHistory: [{
-              x: ele.position.x,
-              y: ele.position.y
-            }]
-          })
-        })
+    // addFromDatabaseNew: () => {
+      //   console.log('in here')
+      //       // need to add a check for resize: #TODO 2018-03-22 00:14:43
+      //       // get database container (original) coords
+      //       let originalContainerSize = this.databaseContent.containerSize
+      //       // get current coords
+      //       let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
+      //       // compare
+      //       let test = _.deepDifference(originalContainerSize, currentContainerSize)
+      //       // if different resize accordingly
+      //   // idCounter = this.databaseContent.latestId #TODO 2018-03-27 17:36:01 uncomment when notebooks routes are finished
+      //   this.databaseContent.content.map(ele => { //$WORKINGON_STEP2
+      //     this.childNoteStorage.push({
+      //       id: ele.id,
+      //       content: ele.content,
+      //       position: {
+      //         x: ele.position.x,
+      //         y: ele.position.y
+      //       },
+      //       // position history in format of Draggable
+      //       positionHistory: [{
+      //         x: ele.position.x,
+      //         y: ele.position.y
+      //       }]
+      //     })
+      //   })
 
-      }
+    // }
     },
     dynamicTextarea: {
       /** Add textarea at mouse position
@@ -275,12 +277,12 @@ export class WriteDragDrop {
           }
           this.childNoteStorage.push(tempobj)
         }
-        this.databaseContent.latestId = _idCounter++
+        // this.databaseContent.latestId = _idCounter++
       }
     },
     topics: {
+
       getTopicFromNotebook: () => {
-        this.router
         console.log('get one topic')
         let nbId = this.router.currentInstruction.params.nbid
         let tId = this.router.currentInstruction.params.tid
@@ -295,6 +297,7 @@ export class WriteDragDrop {
             console.log('​WriteDragDrop -> this.childNoteStorage', this.childNoteStorage);
           })
       },
+
       reveal: () => { //#DEPRECATED
         // databaseContent provides me the whole notebook
         console.log(this)
@@ -305,14 +308,14 @@ export class WriteDragDrop {
         console.log('​WriteDragDrop -> this.allChildNotes', this.allChildNotes);
         this.childNoteStorage = this.allChildNotes
       },
-      validateTopicSchema: () => { //#DEPRECATED
-        let topic = {
-          title: this.currentTopic[0].topics[0].title,
-          notes: this.currentTopic[0].topics[0].content,
-          containerSize: document.getElementById('note-container').getBoundingClientRect()
-        }
-        console.log(topic)
-      }
+      // validateTopicSchema: () => { //#DEPRECATED
+      //   let topic = {
+      //     title: this.currentTopic[0].topics[0].title,
+      //     notes: this.currentTopic[0].topics[0].content,
+      //     containerSize: document.getElementById('note-container').getBoundingClientRect()
+      //   }
+      //   console.log(topic)
+      // }
     }
 	}
 

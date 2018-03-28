@@ -22,7 +22,8 @@
               <div class="card-body">
                 <div repeat.for='topic of currentNotebook.topics'>
                   <div if.bind="topic._id">
-                    <a route-href="route: topicsDetail; params.bind: {nbid:nbId, tid:topic._id}" dblclick.delegate="app.changeNoteName($event)">
+                    <a route-href="route: topicsDetail; params.bind: {nbid:nbId, tid:topic._id}" dblclick.delegate="app.changeNoteName($event)" 
+                      click.delegate="m.utils.toggle_topic_clicked(true)">
                       ${topic.title}
                     </a>
                   </div>
@@ -50,11 +51,14 @@
     </div>
 
     <div class="grid-view">
-      <write-drag-drop
-        database-content.two-way="currentNotebook"
-        ctp-wdd-topics.two-way='notesFromWDD'
-        latest-id.two-way="latestId">
-      </write-drag-drop>
+       <!-- database-content.two-way="currentNotebook" -->
+      <div if.bind="topic_clicked">
+          <write-drag-drop 
+            ctp-wdd-topics.two-way='notesFromWDD' 
+            receive-current-topic.two-way="provide_topic" 
+            wait-for-topic-clicked.two-way="topic_clicked">
+          </write-drag-drop>
+      </div>
             <div>
                 <button class="btn btn-outline-secondary" click.delegate="m.http.postNotesToTopic()">
                   Save

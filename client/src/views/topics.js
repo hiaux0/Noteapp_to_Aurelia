@@ -1,25 +1,44 @@
 import {inject} from 'aurelia-framework'
+import { Router, Redirect } from 'aurelia-router';
 
 import {NotebooksRouter} from '../routes/notebooks-router'
 import {DatabaseAPI} from '../database-api'
 import { App } from '../app'
+import {WriteDragDrop} from '../features/write_anywhere/write-drag-drop'
 
-@inject(NotebooksRouter,App,DatabaseAPI)
+@inject(NotebooksRouter, App, DatabaseAPI, Router, WriteDragDrop)
 export class Topics {
   currentNotebook
   notesFromWDD
-  constructor(nbsRouter, app, dbAPI) {
+  // topic_clicked
+
+  constructor(nbsRouter, app, dbAPI,router, wdd) {
     this.nbsRouter = nbsRouter
     this.app = app
     this.dbAPI = dbAPI
     this.mockData = this.nbsRouter.mockData
+    this.router = router
+    this.wdd = wdd
   }
 
   activate(params) {
+    this.params = params
     this.nbId = params.nbid
     this.tId = params.tid
-    console.log('activated')
+    console.log('topics activated')
+    // return new Redirect("/tId")
     return this.m.http.getTopicsFromNotebook(this.nbId)
+    
+  }
+  
+  canActivate(params) {
+    console.log("topics can activate")
+      if (params.tid) {
+        console.log("tid active")
+        this.topic_clicked = true
+      } else {
+        console.log("tid not active")
+      }
   }
 
   determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
@@ -81,7 +100,29 @@ export class Topics {
       updateX: (ev) => {
         this.app.xcoord = ev.pageX
         this.app.ycoord = ev.pageY
-      }
+      },
+      test: () => {
+        console.log("testerr")
+      },
+      toggle_topic_clicked: (bool) => {
+        this.topic_clicked = bool
+
+        // switch (bool) {
+        //   case true:
+        //     this.topic_clicked = false
+        //     console.log(this.topic_clicked)
+        //     break;
+        //     case false:
+        //     this.topic_clicked = true
+        //     console.log(this.topic_clicked)
+        //     break;
+        // }
+      },
+      topic_detail_async: new Promise( resolve => {
+        if (this.topic_clicked) {
+          resolve(this.params)
+        }
+      })
     },
     view: {
       createNewNote: () => {
@@ -94,6 +135,25 @@ export class Topics {
       },
       deleteTopic: () => {
         this.dbAPI
+      },
+      provide_topic_for_view: (nbId, tId) => {
+        console.log('get one topic')
+        // let nbId = this.router.currentInstruction.params.nbid
+        // let tId = this.router.currentInstruction.params.tid
+        this.dbAPI.get_topic_from_notebook(nbId, tId)
+          .then(topic => {
+            if (topic.error) { return topic } // dirty cases
+            // set _idCounter
+            // _idCounter = topic[0].topics[0].latestId #TODO
+            //
+            console.log(topic[0].topics[0].notes)
+            this.provide_topic = new Promise(resolve => {
+              this.provide_topic = topic[0].topics[0].notes
+              resolve(this.provide_topic)
+            })
+            console.log('​WriteDragDrop -> this.childNoteStorage', this.provide_topic);
+          })
+
       }
     }
   }
