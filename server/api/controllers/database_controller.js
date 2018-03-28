@@ -85,51 +85,49 @@ let notebooks = {
           }
         })
       },
-      //  db.notebooks.find({ '_id': ObjectId('5abaac3cbd65211c46c43d79') }, { topics: { $elemMatch: { _id: ObjectId('5abab52dd92a401d9650fe32') } } })
-      // To update 
-      update_a_topic_from_notebook: function (req, res) {
-        console.log("in topic update")
+      
+      /** 
+       * Patch ONE field in notebook schema
+       * Check for ONE field only is made in the API. #CONSIDER a check here as well.
+       */
+      patch_a_topic_from_notebook: function (req, res) {
         let nb_id = req.params.nbid
         let t_id = req.params.tid
-        Notebook.find({
-          '_id': ObjectId(nb_id.toString())
-        }, {
-            "topics": {
-              $elemMatch: {
-                "_id": ObjectId(t_id.toString())
-              }
-            }
-          }, (err, topic) => {
-            if (err) { console.log(err) } 
-            else {
-              topic[0].topics[0].content.push(req.body)
-              console.log("topic: ",topic[0].topics[0].content)
-              res.json(topic)
-              topic.save((err,output) => {
-                if(err) res.send(err)
-                else res.json(output)
-              })
-            }
+        Notebook.findById(nb_id)
+          .then( nb => {
+            const targetTopic = nb.topics.id(t_id) // through mongoose id() method, find the subDoc 'topic'
+            const targetKey = Object.keys(req.body)[0] // filter keys to update
+            targetTopic[targetKey] = req.body[targetKey] // update 
+            return nb.save() // save, and mongoose automatically validates
           })
+          .then(nb => res.send({nb})) // return the updated nb
+          .catch(e => res.status(400).send(e)) // error handling
+
       },
-      update_a_topic_from_notebook_v1: function (req, res) {
+      put_topic_from_notebook_v1: function (req, res) {
         console.log("in topic update")
         let nb_id = req.params.nbid
         let t_id = req.params.tid
         Notebook.findById(nb_id, function(err, notebook) {
           if(err) console.log(err)
           else {
-            let new_content = req.body
-            console.log('​new_content', new_content);
-            notebook.topics.map(ele => {
-              if (ele._id == t_id) {
-                console.log(ele)
-                // console.log(new_content[0])
-                // for some reason req.body is in an array
-                ele.notes = (req.body)
-                console.log('​ele', ele);
-              }
-            })
+            // check req.body which POST was send (topic or note)
+            if(req.body.notes) {
+              console.log('prepare for new notes')
+            } else {
+              let new_content = req.body
+              console.log('​new_content', new_content);
+              notebook.topics.map(ele => {
+                if (ele._id == t_id) {
+                  console.log(ele)
+                  // console.log(new_content[0])
+                  // for some reason req.body is in an array
+                  ele.notes = (req.body)
+                  console.log('​ele', ele);
+                }
+              })
+            }
+
             notebook.save((err, result) => {
               console.log('result: ',result.topics[0].notes)
               if (err) res.send(err)
@@ -193,6 +191,47 @@ exports.notebooks = notebooks
 //
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////// Playground //////////////////////////////
+let notes = {
+  /**
+   * post new note to a topic from one notebook
+   */
+  post_notes_to_topic_from_notebook: (req,res) => {
+      console.log("NEW post note to topic from notebook")
+      let nb_id = req.params.nbid
+      let t_id = req.params.tid
+      Notebook.findById(nb_id, function (err, notebook) {
+        if (err) console.log(err)
+        else {
+          // check req.body which POST was send (topic or note)
+            let new_content = req.body
+            console.log('​new_content', new_content);
+            notebook.topics.map(ele => {
+              if (ele._id == t_id) {
+                console.log(ele)
+                // console.log(new_content[0])
+                // for some reason req.body is in an array
+                ele.notes = (req.body)
+                console.log('​ele', ele);
+              }
+            })
+
+          notebook.save((err, result) => {
+            console.log('result: ', result.topics[0].notes)
+            if (err) res.send(err)
+            else res.json(result)
+          })
+
+        }
+      })
+  }
+
+}
+
+exports.notes = notes
+
+////////////////////////////// Playground ////////////////////////////// 2018-03-28 17:55:19
 
 exports.get_mongodb_id = function(req,res) {
   res.json(new ObjectId())

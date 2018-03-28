@@ -32,11 +32,15 @@ module.exports = function (app) {
 
   app.route('/notebooks/:nbid/topics/:tid')
     .get(noteApp.notebooks.topics.idRoute.find_a_topic_from_notebook)
-    .patch(noteApp.notebooks.idRoute.patch_notebook) // #ADJUST #NOTEBOOKSROUTER
-    // .put(noteApp.notebooks.topics.idRoute.update_a_topic_from_notebook)
-    .put(noteApp.notebooks.topics.idRoute.update_a_topic_from_notebook_v1)
+    .patch(noteApp.notebooks.topics.idRoute.patch_a_topic_from_notebook) // #ADJUST #NOTEBOOKSROUTER
+    // .put(noteApp.notebooks.topics.idRoute.NEW_update_a_topic_from_notebook) // #280301
+    .put(noteApp.notebooks.topics.idRoute.put_topic_from_notebook_v1)
     .delete(noteApp.notebooks.idRoute.delete_a_notebook) //#ADJUST #NOTEBOOKSROUTER
 
+  // Notebooks/Topics/Notes
+  app.route('/notebooks/:nbid/topics/:tid/notes')
+    .post(noteApp.notes.post_notes_to_topic_from_notebook)
+  
   // Notes route
   // app.route('/notes')
   //   .get(noteApp.list_all_note)

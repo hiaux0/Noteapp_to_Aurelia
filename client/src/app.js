@@ -67,6 +67,7 @@ export class App {
     if(this.oneNameEditAtATime.counter === 1) {
       this.oneNameEditAtATime.last.style.backgroundColor = "#fff3e0"
       this.oneNameEditAtATime.last.setAttribute("contenteditable", false)
+      this.oneNameEditAtATime.last.focus()
       this.oneNameEditAtATime.counter == 0;
     }
     this.oneNameEditAtATime.last = ev.target  

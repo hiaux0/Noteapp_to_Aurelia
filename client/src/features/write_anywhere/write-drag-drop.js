@@ -7,8 +7,11 @@ import helper from '../helper_lib'
 import connectArea from '../connect_areas/connect-areas'
 import { DatabaseAPI } from '../../database-api';
 import Draggable from "gsap/Draggable";
+import {App} from '../../app'
 
 let idCounter = 1;
+let _idCounter = 0;
+let _latestId = 0;
 
 /**
  * Deep diff between two object, using lodash
@@ -29,7 +32,7 @@ function deepDifference(object, base) {
 }
 _.mixin({ 'deepDifference': deepDifference });
 
-@inject(DatabaseAPI, Element, EventAggregator, Router)
+@inject(App, DatabaseAPI, Element, EventAggregator, Router)
 export class WriteDragDrop {
   draggableToggle = false
   Draggable = Draggable
@@ -43,7 +46,7 @@ export class WriteDragDrop {
    */
   @bindable databaseContent
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
-
+  @bindable latestId
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -52,7 +55,8 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(dbAPI, element, ea, router) {
+  constructor(app, dbAPI, element, ea, router) {
+    this.app = app
     this.dbAPI = dbAPI
     this.ea = ea
     this.element = element
@@ -61,12 +65,6 @@ export class WriteDragDrop {
   }
 
   attached() {
-    // connectArea.listenToConnect()
-    /* on activation get the route/id from */
-    // this.dbAPI.get_one_database_entry("/notes", this.ctpWddTopics).then(data => {
-    //   this.m.init.addFromDatabaseNew()
-    // })
-    console.log('new?')
     this.m.topics.getTopicFromNotebook()
   }
 
@@ -190,7 +188,7 @@ export class WriteDragDrop {
         }
       }
     },
-    init: {
+    init: { // new init is m.topics.getTopicsFromNotebook()
       /** 
        * Initialize database content with databaseContent received from note_detail
        */
@@ -245,10 +243,10 @@ export class WriteDragDrop {
           // counter to give each dataobject an id
           if (this.childNoteStorage.last().content === "") {
             this.childNoteStorage.pop()
-            --idCounter // if empty dyn area gets deleted adjust idCounter
+            --_idCounter // if empty dyn area gets deleted adjust idCounter
           }
           let tempobj = {
-            id: idCounter,
+            id: _idCounter,
             content: "",
             position: {
               x: ev.pageX,
@@ -263,7 +261,7 @@ export class WriteDragDrop {
           this.childNoteStorage.push(tempobj)
         } else {
           let tempobj = {
-            id: idCounter,
+            id: _idCounter,
             content: "",
             position: {
               x: ev.pageX,
@@ -277,7 +275,7 @@ export class WriteDragDrop {
           }
           this.childNoteStorage.push(tempobj)
         }
-        this.databaseContent.latestId = idCounter++
+        this.databaseContent.latestId = _idCounter++
       }
     },
     topics: {
@@ -288,14 +286,16 @@ export class WriteDragDrop {
         let tId = this.router.currentInstruction.params.tid
         this.dbAPI.get_topic_from_notebook(nbId, tId)
           .then(topic => {
-            if(topic.error) {return topic}
+            if(topic.error) {return topic} // dirty cases
+            // set _idCounter
+            _idCounter = topic[0].topics[0].latestId
+            //
             console.log(topic[0].topics[0].notes)
             this.childNoteStorage = topic[0].topics[0].notes
             console.log('​WriteDragDrop -> this.childNoteStorage', this.childNoteStorage);
-            
           })
       },
-      reveal: () => {
+      reveal: () => { //#DEPRECATED
         // databaseContent provides me the whole notebook
         console.log(this)
         console.log('​WriteDragDrop -> this.currentTopic', this.currentTopic);
@@ -305,7 +305,7 @@ export class WriteDragDrop {
         console.log('​WriteDragDrop -> this.allChildNotes', this.allChildNotes);
         this.childNoteStorage = this.allChildNotes
       },
-      validateTopicSchema: () => {
+      validateTopicSchema: () => { //#DEPRECATED
         let topic = {
           title: this.currentTopic[0].topics[0].title,
           notes: this.currentTopic[0].topics[0].content,
@@ -327,6 +327,7 @@ export class WriteDragDrop {
   delegateToParent() {
     this.m.childNotes.saveChangesOfDragged() 
     this.ctpWddTopics = this.childNoteStorage
+    this.latestId = _idCounter // -1 since we automatically increase after new textarea
     console.log('​WriteDragDrop -> delegateToParent -> this.childNoteStorage', this.ctpWddTopics);
   }
 

@@ -43,7 +43,8 @@ export class Topics {
         let new_t = {
           title: this.newEmptyTopicTitle,
           notes: [],
-          containerSize: document.getElementById('note-container').getBoundingClientRect()
+          containerSize: document.getElementById('note-container').getBoundingClientRect(),
+          latestId: 0
         }
         console.log(new_t.containerSize)
         this.dbAPI.post_new_topic_to_notebook(this.nbId, new_t).then(data => {
@@ -54,11 +55,20 @@ export class Topics {
       },
       postNotesToTopic: () => {
         console.log(this.notesFromWDD)
-        this.dbAPI.put_topic_from_notebook(this.nbId, this.tId,this.notesFromWDD)
+        // update latestId
+        let patch_latestId_in_topic = {latestId: this.latestId}
+        this.m.http.patchCurrentTopic(patch_latestId_in_topic)
+        this.dbAPI.notes.post_notes_to_topic_from_notebook(this.nbId, this.tId,this.notesFromWDD)
           .then(data => {
             // console.log(data)
           })
       },
+      patchCurrentTopic: (topicPatch) => {
+        this.dbAPI.patch_topic_from_notebook(this.nbId, this.tId, topicPatch)
+          .then(data => {
+            console.log(data)
+          })
+      }
     },
     mockData: {
       filterTopic: (tId) => {
