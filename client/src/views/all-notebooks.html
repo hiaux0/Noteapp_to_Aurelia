@@ -1,3 +1,56 @@
 <template>
-  <router-view> </router-view>
+  <require from="../../stylesheets/all-notebooks.css"></require>
+
+  <div class="notebooks-container">
+    <div class="grid-sidebar"> <!---------------------- Sidebar ---------------------->
+              <div id="create-new-note">
+                <form action="" submit.trigger="m.notebooks.postNotebook()">
+                  <input type="text" value.bind="newNotebookTitle" placeholder="Enter Notebook title">
+                  <br>
+                  <button class="btn btn-outline-success">
+                    Create
+                  </button>
+                  <button type="reset" class="btn btn-outline-danger" id="cancel-topic-creation-btn" click.trigger="m.view.cancelTopicCreation($event)">
+                    Cancel </button>
+                </form>
+              </div>
+      <div>
+        <button class="btn btn-outline-secondary" click.delegate="m.view.createNewNotebook()">
+          Create New Notebook
+        </button>
+      </div>
+      <div>
+        <button class="btn btn-outline-secondary" click.delegate="m.view.dropAllNotebooks()">
+          Drop All Notebooks
+        </button>
+      </div>
+    </div>
+    <div class="grid-view"> <!---------------------- View ---------------------->
+      <div id="notebooks-detail-container">
+        <div repeat.for="notebook of allNotebooks">
+          <div if.bind="notebook._id" class="grid">
+            <a route-href="route: notebookDetail; params.bind: {nbid:notebook._id}" dblclick.delegate="changeNoteName($event)">
+              ${notebook.title}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select A Notebook
+  <button class="btn btn-outline-secondary"
+    click.delegate="m.notebooks.getNotebooks()">Get Notebooks</button>
+  <button class="btn btn-outline-secondary"
+    click.delegate="m.notebooks.postNotebook()">Post Notebooks</button>
+  <div class="notebooks-container">
+    <div repeat.for="notebook of allNotebooks">
+      <div if.bind="notebook._id"
+        class="grid">
+          <a route-href="route: notebookDetail; params.bind: {nbid:notebook._id}" dblclick.delegate="changeNoteName($event)">
+            ${notebook.title}
+          </a>
+      </div>
+    </div>
+  </div> -->
 </template>

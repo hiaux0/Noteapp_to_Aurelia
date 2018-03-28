@@ -33,7 +33,7 @@ export class App {
   
   constructor(dbAPI, ea) {
     this.dbAPI = dbAPI
-    this.getData()
+    // this.getData()
     ea.subscribe(EntryDeleted, msg => {
       this.dataMessage = this.dataMessage.filter(ele =>
         ele._id !== msg.deletedId
@@ -123,81 +123,81 @@ export class App {
     }
   }
 
-  getData() {
-    this.dbAPI.get_database_entries(this.route)
-      .then(data => {
-        this.dataMessage = data
-      })
-  }
-  postData() {
-    // console.log(document.getElementById("note-container"))
-    let coords = document.getElementById("note-container").getBoundingClientRect()
-    let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
-      coords.x,
-      coords.y,
-      coords.height,
-      coords.width
-    )
-    this.dbAPI.post_database_entry(this.route, {
-        title: `${this.newNoteTitle}`,
-        content: {
-          id: 1,
-          content: "",
-          position: {
-            x: firstAreaPosition.x,
-            y: firstAreaPosition.y
-          }
-        },
-        latestId: 1,
-        containerSize: coords
-      })
-      .then(data => {
-        if(data.errors) {
-          console.log(data)
-        }
-        this.dataMessage.push(data)
-      })
-    this.counter++
-  }
+  // getData() {
+  //   this.dbAPI.get_database_entries(this.route)
+  //     .then(data => {
+  //       this.dataMessage = data
+  //     })
+  // }
+  // postData() {
+  //   // console.log(document.getElementById("note-container"))
+  //   let coords = document.getElementById("note-container").getBoundingClientRect()
+  //   let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
+  //     coords.x,
+  //     coords.y,
+  //     coords.height,
+  //     coords.width
+  //   )
+  //   this.dbAPI.post_database_entry(this.route, {
+  //       title: `${this.newNoteTitle}`,
+  //       content: {
+  //         id: 1,
+  //         content: "",
+  //         position: {
+  //           x: firstAreaPosition.x,
+  //           y: firstAreaPosition.y
+  //         }
+  //       },
+  //       latestId: 1,
+  //       containerSize: coords
+  //     })
+  //     .then(data => {
+  //       if(data.errors) {
+  //         console.log(data)
+  //       }
+  //       this.dataMessage.push(data)
+  //     })
+  //   this.counter++
+  // }
 
-  postNotebook() {
-    let NotebookObject = {
-      _id: "5ab3e23b5856a710664af067",
-      title: "TestNotebook",
-      topic: {
-        _id: "5ab3e29d5856a710664af06b",
-        title: "Learning Nested Documents",
-        notes: [
-          {
-            _id: "5ab3e29d5856a710664af06c",
-            content: "some"
-          },
-          {
-            _id: "5ab3e29d5856a710664af061",
-            content: "test"
-          }
-        ]
-      }
-    }
-    console.log(NotebookObject)
-    this.dbAPI.post_database_entry(this.route,NotebookObject)
-    .then(data => {
-      if(data.errors) console.log(data)
-      console.log(data)
-    })
+  // postNotebook() {
+  //   let NotebookObject = {
+  //     _id: "5ab3e23b5856a710664af067",
+  //     title: "TestNotebook",
+  //     topic: {
+  //       _id: "5ab3e29d5856a710664af06b",
+  //       title: "Learning Nested Documents",
+  //       notes: [
+  //         {
+  //           _id: "5ab3e29d5856a710664af06c",
+  //           content: "some"
+  //         },
+  //         {
+  //           _id: "5ab3e29d5856a710664af061",
+  //           content: "test"
+  //         }
+  //       ]
+  //     }
+  //   }
+  //   console.log(NotebookObject)
+  //   this.dbAPI.post_database_entry(this.route,NotebookObject)
+  //   .then(data => {
+  //     if(data.errors) console.log(data)
+  //     console.log(data)
+  //   })
 
-  }
+  // }
   
-  dropData() {
-    client.fetch("http://localhost:3000/route", {
-        method: "delete"
-      })
-      .then(response => response.json())
-      .then(data => {
-        this.dataMessage = []
-        console.log(data)
-      })
-  }
+  // dropData() {
+  //   client.fetch("http://localhost:3000/route", {
+  //       method: "delete"
+  //     })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       this.dataMessage = []
+  //       console.log(data)
+  //     })
+  // }
   test() {
     console.log("test success")
   }
@@ -207,10 +207,10 @@ export class App {
     config.title = 'Notes';
     config.map([{
         route: ['', 'home'],name: 'home',       moduleId: 'router_display', nav: true, title: "Home" },
-      {route: 'notebooks',  name: 'notebooks',  moduleId: './views/all-notebooks', nav: true, title: 'Notebooks'},
+      {route: 'notebooks',  name: 'notebooks',  moduleId: './routes/notebooks-router', nav: true, title: 'Notebooks'},
       // {route: 'notebooks',  name: 'notebooks',  moduleId: 'router_display', nav: true, title: 'Notebooks'},
-      {route: 'notes',      name: 'notes',      moduleId: 'router_display', nav: true, title: 'Notes' },
-      {route: 'notes/:id',  name: 'routeDetail',moduleId: './note_detail' },
+      // {route: 'notes',      name: 'notes',      moduleId: 'router_display', nav: true, title: 'Notes' },
+      // {route: 'notes/:id',  name: 'routeDetail',moduleId: './note_detail' },
       {route: 'playground', name: 'playground', moduleId: './playground/play', nav: true, title: 'Playground' },
       {route: 'threelines', name: 'threelines', moduleId: './features/gsap/connect-with-line', nav: true,
         title: '3 Lines'

@@ -1,36 +1,90 @@
 import {inject} from 'aurelia-framework'
 
-import {AllNotebooks} from './all-notebooks'
+import {NotebooksRouter} from '../routes/notebooks-router'
+import {DatabaseAPI} from '../database-api'
 import { App } from '../app'
 
-@inject(AllNotebooks,App)
+@inject(NotebooksRouter,App,DatabaseAPI)
 export class Topics {
-  constructor(allNbs, app) {
-    this.allNbs = allNbs
+  currentNotebook
+  notesFromWDD
+  constructor(nbsRouter, app, dbAPI) {
+    this.nbsRouter = nbsRouter
     this.app = app
-    this.mockData = this.allNbs.mockData
+    this.dbAPI = dbAPI
+    this.mockData = this.nbsRouter.mockData
   }
 
-  created() {
-    this.topicId = (this.allNbs.router.currentInstruction.params.tid)
-    // let arr = this.methods.mockData.filterTopic(this.topicId)
-    // console.log(arr[0].notes)
-    console.log(this.allNbs.router)
-    this.nbId = this.allNbs.router.currentInstruction.params.nbid
+  activate(params) {
+    this.nbId = params.nbid
+    this.tId = params.tid
+    return this.m.http.getTopicsFromNotebook(this.nbId)
   }
 
-  methods = {
-    mockData: {
-      filterTopic: (topicId) => {
-        return this.mockData.topics.filter( ele => this.methods.mockData.filterIdOfTopic(ele,topicId)  )
+  m = {
+    http: {
+      createNewTopic: () => {
+       
       },
-      filterIdOfTopic: (topicsArray, topicId) =>  
-        (topicsArray._id == topicId) ? true : false 
+      getTopicFromNotebook: () => {
+
+        this.dbAPI.get_topic_from_notebook(this.nbId, this.tId)
+          .then(topic => {
+            console.log(topic)
+          })
+      },
+      getTopicsFromNotebook: (nbId) => {
+        this.dbAPI.get_topics_from_notebook('/notebooks', nbId)
+          .then(data => {
+            if(data.error) {return data}
+            this.currentNotebook = data 
+            console.log('​Topics -> this.currentNotebook', this.currentNotebook);
+          })
+      },
+      postNewEmptyTopic: () => {
+        console.log(this.newEmptyTopicTitle)
+        let new_t = {
+          title: this.newEmptyTopicTitle,
+          notes: []
+        }
+        this.dbAPI.post_new_topic_to_notebook(this.nbId, new_t).then(data => {
+          console.log(data)
+          this.currentNotebook=data
+          document.getElementById("create-new-note-db").style.display = "none"
+        })
+      },
+      postTopicsToNotebook: () => {
+        console.log(this.notesFromWDD)
+        this.dbAPI.put_topic_from_notebook(this.nbId, this.tId,this.notesFromWDD)
+          .then(data => {
+            console.log(data)
+          })
+      },
+    },
+    mockData: {
+      filterTopic: (tId) => {
+        return this.mockData.topics.filter( ele => this.m.mockData.filterIdOfTopic(ele,tId)  )
+      },
+      filterIdOfTopic: (topicsArray, tId) =>  
+        (topicsArray._id == tId) ? true : false 
     },
     utils: {
       updateX: (ev) => {
         this.app.xcoord = ev.pageX
         this.app.ycoord = ev.pageY
+      }
+    },
+    view: {
+      createNewNote: () => {
+        document.getElementById("create-new-note-db").style.display = "flex" //#ADJUST delete in eleby id "-db"
+        $("#create-new-note-db > form > input").focus()
+      },
+      cancelTopicCreation: (ev) => {
+        ev.preventDefault()
+        document.getElementById("create-new-note-db").style.display = "none"
+      },
+      deleteTopic: () => {
+        this.dbAPI
       }
     }
   }

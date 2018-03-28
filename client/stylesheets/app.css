@@ -20,6 +20,11 @@ input {
   display:none; 
 }
 
+/* #DELETE WHEN FINISHED #NOTEBOOKSROUTES */
+#create-new-note-db { 
+  display:none; 
+}
+
 [class^=grid] {
   border: 1px solid lightgray;
   padding: 0.5em; }

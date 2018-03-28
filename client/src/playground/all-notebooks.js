@@ -1,11 +1,11 @@
-import { inject } from 'aurelia-framework'
+import {inject} from 'aurelia-framework'
 
-import { App } from '../app'
+import {App} from '../app'
 import { DatabaseAPI } from '../database-api';
 
 @inject(App, DatabaseAPI)
-export class NotebooksRouter {
-  constructor(app, dbAPI) {
+export class AllNotebooks {
+  constructor(app,dbAPI) {
     this.greeting = 'Display All notebooks here'
     this.app = app
     this.dbAPI = dbAPI
@@ -50,7 +50,7 @@ export class NotebooksRouter {
         ]
       }
     ]
-  }
+  }  
   // methods = {
   //   http: {
   //     getNotebooks: () => {
@@ -81,15 +81,15 @@ export class NotebooksRouter {
   // }
   configureRouter(config, router) {
     config.options.pushState = true;
-    // config.options.root = '/notebooks';
+    config.options.root = '/notebooks';
     config.title = 'Notebooks';
     config.map([
       { route: '', redirect: 'all', },
       // { route: ['','notebooks'], name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
-      { route: 'all', name: 'allNotebooks', title: "All Notebooks", moduleId: "../views/all-notebooks" },
-      { route: '/:nbid', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/topics" },
-      { route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
-      { route: '/:nbid/topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
+      {route: 'all', name: 'allNotebooks', title: "All Notebooks", moduleId: "../views/allNbs"},
+      {route: '/:nbid', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/topics"},
+      {route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },
+      {route: '/:nbid/topics/:tid', name: 'topicsDetail', title: 'Topics Detail', moduleId: '../views/topics' }
     ]);
     this.router = router;
   }

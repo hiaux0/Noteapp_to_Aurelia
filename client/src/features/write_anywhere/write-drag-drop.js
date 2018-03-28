@@ -34,8 +34,14 @@ export class WriteDragDrop {
   draggableToggle = false
   Draggable = Draggable
   firstDrag = true
+  /**
+   * Should be of the from
+   * 
+   * 
+   * @memberOf WriteDragDrop
+   */
   @bindable databaseContent
-  @bindable ctpWddTestdail // child to parent (child = wdd, parent = testdetail)
+  @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,9 +61,9 @@ export class WriteDragDrop {
   attached() {
     // connectArea.listenToConnect()
     /* on activation get the route/id from */
-    this.dbAPI.get_one_database_entry("/notes", this.ctpWddTestdail).then(data => {
-      this.methods.init.addFromDatabaseNew()
-    })
+    // this.dbAPI.get_one_database_entry("/notes", this.ctpWddTopics).then(data => {
+    //   this.m.init.addFromDatabaseNew()
+    // })
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +74,7 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-	methods = {
+	m = {
     childNotes: {
       /**
        * Every time a note is dragged, add its position to history
@@ -106,7 +112,6 @@ export class WriteDragDrop {
             y: 0
           }
         }
-
       },
       /**
        * Helper to gather all elements that where moved and updates their position
@@ -131,7 +136,6 @@ export class WriteDragDrop {
               movedEle.style.transform = '' //resets transform of Draggable
             }
           })
-
         })
       }
     },
@@ -153,9 +157,9 @@ export class WriteDragDrop {
                    */
                   if(this.firstDrag) { 
                     // x position
-                    this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x - this.methods.childNotes.getPreviousPosition(ele).x * 1
+                    this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x - this.m.childNotes.getPreviousPosition(ele).x * 1
                     // y position
-                    this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y - this.methods.childNotes.getPreviousPosition(ele).y * 1
+                    this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y - this.m.childNotes.getPreviousPosition(ele).y * 1
                     // turn off firstDrag
                     this.firstDrag = false
                   }
@@ -163,7 +167,7 @@ export class WriteDragDrop {
                 },
                 onDragEnd: () => {
                   ele.classList.add('movedDueDrag')              
-                  this.methods.childNotes.addToPositionHistory(ele)
+                  this.m.childNotes.addToPositionHistory(ele)
                   
                 }
               });
@@ -194,7 +198,7 @@ export class WriteDragDrop {
             // compare
             let test = _.deepDifference(originalContainerSize, currentContainerSize)
             // if different resize accordingly
-        idCounter = this.databaseContent.latestId
+        // idCounter = this.databaseContent.latestId #TODO 2018-03-27 17:36:01 uncomment when notebooks routes are finished
         this.databaseContent.content.map(ele => { //$WORKINGON_STEP2
           this.childNoteStorage.push({
             id: ele.id,
@@ -281,8 +285,9 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
  
   delegateToParent() {
-    this.methods.childNotes.saveChangesOfDragged() 
-    this.ctpWddTestdail = this.childNoteStorage
+    this.m.childNotes.saveChangesOfDragged() 
+    this.ctpWddTopics = this.childNoteStorage
+    console.log('​WriteDragDrop -> delegateToParent -> this.childNoteStorage', this.ctpWddTopics);
   }
 
   /**
