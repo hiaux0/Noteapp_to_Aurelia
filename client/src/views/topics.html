@@ -1,8 +1,6 @@
 <template>
   <require from="../features/write_anywhere/write-drag-drop"></require>
 
-  <button class="btn btn-outline-secondary" click.delegate="m.http.getTopicFromNotebook()">Get Topics From Notebook</button>
-  <button class="btn btn-outline-secondary" click.delegate="m.http.patchCurrentTopic()">Patch Current Topic</button>
   <div class="main-container" mousemove.delegate="m.utils.updateX($event)">
 
     <div class="grid-sidebar">
