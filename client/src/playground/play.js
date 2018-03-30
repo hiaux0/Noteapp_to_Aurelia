@@ -1,7 +1,6 @@
 import {inject} from 'aurelia-framework'
 
-import connectArea from '../features/connect_area/connect-area'
-import 'gsap'
+import connectArea from '../features/connect_areas/connect-areas'
 import Draggable from "gsap/Draggable";
 
 export class Play {

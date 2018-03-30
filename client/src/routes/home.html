@@ -1,23 +1,22 @@
-<template >
+<template>
   <require from="bootstrap/css/bootstrap.css"></require>
-  <require from="../stylesheets/app.css"></require>
+  <require from="../../stylesheets/app.css"></require>
 
-<!------------------------ Navbar ------------------------>
-  <nav class="navbar navbar-expand-lg navbar-light" id="custom-navbar" style.bind="navbarToggleStyle"> 
+  <!------------------------ Navbar ------------------------>
+  <nav class="navbar navbar-expand-lg navbar-light" id="custom-navbar" style.bind="navbarToggleStyle">
     <a class="navbar-brand" href="">Noteapp</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
       aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-  
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li repeat.for="nav of router.navigation" > <!-- Aurelia -->
+        <li repeat.for="nav of router.navigation">
+          <!-- Aurelia -->
           <span class="${nav.isActive ? 'active' : ''} nav-item">
-            <a 
-              class="nav-link" 
-              href.bind="nav.href" >
-              ${nav.title} 
+            <a class="nav-link" href.bind="nav.href">
+              ${nav.title}
             </a>
           </span>
         </li>
@@ -30,9 +29,9 @@
       </div>
     </div>
   </nav>
-<!------------------------ Navbar ------------------------>
+  <!------------------------ Navbar ------------------------>
   <button class='btn btn-outline-secondary' click.delegate="toggleNavbar()"> ${navbarHidden?"Show":"Hide"} Navbar </button>
-  <br>
-  <router-view ></router-view>
+
+  <router-view></router-view>
 
 </template>

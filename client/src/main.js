@@ -2,11 +2,14 @@ import environment from './environment';
 import 'jquery'
 import 'bootstrap'
 import 'lodash'
+import '../src/features/mylodash'
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
-    .feature('resources');
+    .feature('resources')
+    .globalResources(
+    );
 
   if (environment.debug) {
     aurelia.use.developmentLogging();

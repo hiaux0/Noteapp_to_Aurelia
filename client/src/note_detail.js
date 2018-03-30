@@ -21,10 +21,10 @@ export class TestDetail {
     this.detail = ""
   }
 
-  determineActivationStrategy() {
-    // return "invoke-lifecycle"
-    return "replace"
-  }
+  // determineActivationStrategy() {
+  //   // return "invoke-lifecycle"
+  //   return "replace"
+  // }
 
   activate(params, routeConfig) {
     this.routeConfig = routeConfig;
@@ -40,10 +40,11 @@ export class TestDetail {
       .then(dataDetail => {
         if (dataDetail) {
           // console.log(dataDetail)
+          // {id,content,position,latestId}
           this.dataDetail = dataDetail
-          this.detailId = dataDetail._id
+          // this.detailId = dataDetail._id
           this.title = dataDetail.title
-          this.content = dataDetail.content
+          
         }
       })
   }

@@ -1,0 +1,71 @@
+<template>
+  <require from="../features/write_anywhere/write-drag-drop"></require>
+
+  <div class="main-container" mousemove.delegate="m.utils.updateX($event)">
+
+    <div class="grid-sidebar">
+        
+        <!-- <button class="btn btn-outline-secondary" click.delegate="m.http.getNotebooks()">Get Notebook</button> -->
+
+        <div id="accordion"> <!-- acc with database content -->
+          <div class="card pc">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  ${currentNotebook.title}
+                </button>
+              </h5>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                <div repeat.for='topic of currentNotebook.topics'>
+                  <div if.bind="topic._id">
+                    <a route-href="route: topicsDetail; params.bind: {nbid:nbId, tid:topic._id}" dblclick.delegate="app.changeNoteName($event)" 
+                      click.delegate="m.utils.toggle_topic_clicked(true)">
+                      ${topic.title}
+                    </a>
+                  </div>
+                </div>
+                <div id="create-new-note-db">
+                  <form action="" submit.trigger="m.http.postNewEmptyTopic()">
+                    <input type="text" value.bind="newEmptyTopicTitle">
+                    <button class="btn btn-outline-success">
+                      Create
+                    </button>
+                    <button type="reset" class="btn btn-outline-danger" id="cancel-topic-creation-btn" click.trigger="m.view.cancelTopicCreation($event)">
+                      Cancel </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-outline-secondary" click.delegate="m.view.createNewNote()">
+              Create New Topic
+            </button>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="grid-view">
+       <!-- database-content.two-way="currentNotebook" -->
+      <div if.bind="topic_clicked">
+          <write-drag-drop 
+            ctp-wdd-topics.two-way='notesFromWDD' 
+            receive-current-topic.two-way="provide_topic" 
+            wait-for-topic-clicked.two-way="topic_clicked">
+          </write-drag-drop>
+      </div>
+            <div>
+                <button class="btn btn-outline-secondary" click.delegate="m.http.postNotesToTopic()">
+                  Save
+                </button>
+                <button class="btn btn-outline-danger" click.delegate="deleteDetail()">
+                  Delete Topic
+                </button>
+            </div>
+    </div>
+    
+  </div>
+</template>

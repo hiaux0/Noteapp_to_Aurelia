@@ -1,7 +1,18 @@
 
+
+/**
+ * Handle the connecting of child notes via svg line
+ * @class ConnectAreas
+ */
+export class ConnectAreas {
+  constructor() {
+    this.greeting = 'hello from connect areas'
+  }
+}
+
 let connectStorage = []
 
-let connectArea = {
+let connectAreas = {
   getConnectStorageSize,
   listenToConnect,
   areaDistancesToOrigin, // sorting
@@ -167,4 +178,4 @@ function listenToConnect() {
 function getConnectStorageSize() {
   return console.log(connectStorage.length) }
 
-export default connectArea
+export default connectAreas

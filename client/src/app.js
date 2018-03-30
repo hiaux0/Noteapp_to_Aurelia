@@ -5,14 +5,14 @@ import { activationStrategy } from 'aurelia-router'
 
 import { DatabaseAPI } from './database-api';
 import { EntryDeleted, EntryUpdated } from './messages'
-import connectArea from "./features/connect_area/connect-area"
+import connectArea from "./features/connect_areas/connect-areas"
 
 const client = new HttpClient()
 
 @inject(DatabaseAPI, EventAggregator)
 export class App {
   route = "/notes"
-  toggleHide = "Hide"
+  navbarHidden = false
   toggleCreateNewNote = 'none'
   counter = 1
   dataMessage = []
@@ -21,11 +21,19 @@ export class App {
     counter: 0,
     last: 0
   }
+  xcoord // utils for displaying mouth position in x-y coords
+  ycoord
+
+  // vars = {
+  //   utils: {
+  //     xcoord: undefined,
+  //     ycoord: undefined
+  //   }
+  // }
   
   constructor(dbAPI, ea) {
     this.dbAPI = dbAPI
-    this.getData()
-
+    // this.getData()
     ea.subscribe(EntryDeleted, msg => {
       this.dataMessage = this.dataMessage.filter(ele =>
         ele._id !== msg.deletedId
@@ -42,8 +50,13 @@ export class App {
         }
       })
     })
-  }
 
+  }
+  attached() {
+    // navbar toggle option
+    this.navbarHidden ? this.navbarToggleStyle = 'display:none' : this.navbarToggleStyle = 'display:flex'
+
+  }
     /**
    * If double click on Note title, make it editable
    * @memberOf App
@@ -54,6 +67,7 @@ export class App {
     if(this.oneNameEditAtATime.counter === 1) {
       this.oneNameEditAtATime.last.style.backgroundColor = "#fff3e0"
       this.oneNameEditAtATime.last.setAttribute("contenteditable", false)
+      this.oneNameEditAtATime.last.focus()
       this.oneNameEditAtATime.counter == 0;
     }
     this.oneNameEditAtATime.last = ev.target  
@@ -76,11 +90,10 @@ export class App {
     this.oneNameEditAtATime.counter = 1
   
   }
-
-  updateX(ev) {
-    this.xcoord = ev.pageX
-    this.ycoord = ev.pageY
-  }
+  // updateX(ev) {
+  //   this.xcoord = ev.pageX
+  //   this.ycoord = ev.pageY
+  // }
 
   createNewNote() {
     document.getElementById("create-new-note").style.display = "flex"
@@ -99,63 +112,93 @@ export class App {
    * @memberOf App
    */
   toggleNavbar() {
-    switch (this.toggleHide) {
-      case "Hide":
+    switch (this.navbarHidden) {
+      case false:
         document.getElementById("custom-navbar").style.display = "none"
-        this.toggleHide = "Show"
+        this.navbarHidden = true
         break
-      case "Show":
+      case true:
         document.getElementById("custom-navbar").style.display = "flex"
-        this.toggleHide = "Hide"
+        this.navbarHidden = false
         break
     }
   }
 
-  getData() {
-    this.dbAPI.get_database_entries(this.route)
-      .then(data => {
-        this.dataMessage = data
-      })
-  }
-  postData() {
-    // console.log(document.getElementById("note-container"))
-    let coords = document.getElementById("note-container").getBoundingClientRect()
-    let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
-      coords.x,
-      coords.y,
-      coords.height,
-      coords.width
-    )
-    this.dbAPI.post_database_entry(this.route, {
-        title: `${this.newNoteTitle}`,
-        content: {
-          id: 1,
-          content: "",
-          position: {
-            x: firstAreaPosition.x,
-            y: firstAreaPosition.y
-          }
-        },
-        containerSize: coords
-      })
-      .then(data => {
-        if(data.errors) {
-          console.log(data)
-        }
-        this.dataMessage.push(data)
-      })
-    this.counter++
-  }
-  dropData() {
-    client.fetch("http://localhost:3000/route", {
-        method: "delete"
-      })
-      .then(response => response.json())
-      .then(data => {
-        this.dataMessage = []
-        console.log(data)
-      })
-  }
+  // getData() {
+  //   this.dbAPI.get_database_entries(this.route)
+  //     .then(data => {
+  //       this.dataMessage = data
+  //     })
+  // }
+  // postData() {
+  //   // console.log(document.getElementById("note-container"))
+  //   let coords = document.getElementById("note-container").getBoundingClientRect()
+  //   let firstAreaPosition = connectArea.rectangle.getMiddlePoint(
+  //     coords.x,
+  //     coords.y,
+  //     coords.height,
+  //     coords.width
+  //   )
+  //   this.dbAPI.post_database_entry(this.route, {
+  //       title: `${this.newNoteTitle}`,
+  //       content: {
+  //         id: 1,
+  //         content: "",
+  //         position: {
+  //           x: firstAreaPosition.x,
+  //           y: firstAreaPosition.y
+  //         }
+  //       },
+  //       latestId: 1,
+  //       containerSize: coords
+  //     })
+  //     .then(data => {
+  //       if(data.errors) {
+  //         console.log(data)
+  //       }
+  //       this.dataMessage.push(data)
+  //     })
+  //   this.counter++
+  // }
+
+  // postNotebook() {
+  //   let NotebookObject = {
+  //     _id: "5ab3e23b5856a710664af067",
+  //     title: "TestNotebook",
+  //     topic: {
+  //       _id: "5ab3e29d5856a710664af06b",
+  //       title: "Learning Nested Documents",
+  //       notes: [
+  //         {
+  //           _id: "5ab3e29d5856a710664af06c",
+  //           content: "some"
+  //         },
+  //         {
+  //           _id: "5ab3e29d5856a710664af061",
+  //           content: "test"
+  //         }
+  //       ]
+  //     }
+  //   }
+  //   console.log(NotebookObject)
+  //   this.dbAPI.post_database_entry(this.route,NotebookObject)
+  //   .then(data => {
+  //     if(data.errors) console.log(data)
+  //     console.log(data)
+  //   })
+
+  // }
+  
+  // dropData() {
+  //   client.fetch("http://localhost:3000/route", {
+  //       method: "delete"
+  //     })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       this.dataMessage = []
+  //       console.log(data)
+  //     })
+  // }
   test() {
     console.log("test success")
   }
@@ -164,40 +207,16 @@ export class App {
     config.options.root = '/';
     config.title = 'Notes';
     config.map([{
-        route: ['', 'home'],
-        name: 'home',
-        moduleId: 'router_display',
-        nav: true,
-        title: "Home"
-      },
-      {
-        route: 'notes',
-        name: 'notes',
-        moduleId: 'router_display',
-        nav: true,
-        title: 'Notes'
-      },
-      {
-        route: 'notes/:id',
-        name: 'routeDetail',
-        moduleId: './note_detail'
-      },
-      {
-        route: 'playground',
-        name: 'playground',
-        moduleId: './playground/play',
-        nav: true,
-        title: 'Playground'
-      },
-      {
-        route: 'threelines',
-        name: 'threelines',
-        moduleId: './features/gsap/connect-with-line',
-        nav: true,
+        route: ['', 'home'],name: 'home',       moduleId: 'router_display', nav: true, title: "Home" },
+      {route: 'notebooks',  name: 'notebooks',  moduleId: './routes/notebooks-router', nav: true, title: 'Notebooks'},
+      // {route: 'notebooks',  name: 'notebooks',  moduleId: 'router_display', nav: true, title: 'Notebooks'},
+      // {route: 'notes',      name: 'notes',      moduleId: 'router_display', nav: true, title: 'Notes' },
+      // {route: 'notes/:id',  name: 'routeDetail',moduleId: './note_detail' },
+      {route: 'playground', name: 'playground', moduleId: './playground/play', nav: true, title: 'Playground' },
+      {route: 'threelines', name: 'threelines', moduleId: './features/gsap/connect-with-line', nav: true,
         title: '3 Lines'
       }
     ]);
     this.router = router;
-
   }
 }

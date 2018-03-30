@@ -4,13 +4,14 @@ import { activationStrategy, Router } from 'aurelia-router'
 
 import { NewEntrySelected, EntryUpdated } from "../../messages"
 import helper from '../helper_lib'
-import connectArea from '../connect_area/connect-area'
+import connectArea from '../connect_areas/connect-areas'
 import { DatabaseAPI } from '../../database-api';
 import Draggable from "gsap/Draggable";
+import {App} from '../../app'
 
 let idCounter = 1;
-/** hack to make test work, ~~make accessible to class via constructor?~~ */
-// let draggableToggle = false //#DEPRECATED 2018-03-21 18:30:47
+let _idCounter = 0;
+let _latestId = 0;
 
 /**
  * Deep diff between two object, using lodash
@@ -31,14 +32,22 @@ function deepDifference(object, base) {
 }
 _.mixin({ 'deepDifference': deepDifference });
 
-@inject(DatabaseAPI, Element, EventAggregator)
+@inject(App, DatabaseAPI, Element, EventAggregator, Router)
 export class WriteDragDrop {
   draggableToggle = false
   Draggable = Draggable
   firstDrag = true
-  @bindable databaseContent
-  @bindable ctpWddTestdail // child to parent (child = wdd, parent = testdetail)
-
+  currentTopic
+  /**
+   * Should be of the from
+   * 
+   * 
+   * @memberOf WriteDragDrop
+   */
+  // @bindable databaseContent
+  @bindable receiveCurrentTopic
+  @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
+  @bindable waitForTopicClicked //boolean
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -47,21 +56,18 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(dbAPI, element, ea) {
+  constructor(app, dbAPI, element, ea, router) {
+    this.app = app
     this.dbAPI = dbAPI
     this.ea = ea
     this.element = element
     this.childNoteStorage = []
+    this.router = router
   }
 
   attached() {
-    // connectArea.listenToConnect()
-    /* on activation get the route/id from */
-    this.dbAPI.get_one_database_entry("/notes", this.ctpWddTestdail).then(data => {
-      // this.contentStorageOne = (data) // #DEPRECATED
-      // console.log(this.contentStorageOne)
-      this.addFromDatabaseNew()
-    })
+    console.log("wdd attached")
+    this.m.topics.getTopicFromNotebook()
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,56 +78,7 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-	methods = {
-		draggable: {
-			/**
-			 * make all dyn TA draggable
-			 */
-      makeDraggableToggle: () => {
-        switch (this.draggableToggle) {
-          case false:
-            Array.from($(".draggable")).map( (ele) => {
-              ele.setAttribute("contenteditable",false)
-              Draggable.create(ele, {
-                onDragStart: () => {
-                  // console.log(`StartCoord: ${this.findInChildNoteStorage(ele).originalPosition.x}, ${this.findInChildNoteStorage(ele).originalPosition.y}`)
-                  // console.log(`transform coords: ${this.methods.childNotes.getPreviousPosition(ele).x}, ${this.methods.childNotes.getPreviousPosition(ele).y}`)
-                  // console.log(`Assumed wrong pos: 
-                  //   ${this.findInChildNoteStorage(ele).position.x + this.methods.childNotes.getPreviousPosition(ele).x*1}, 
-                  //   ${this.findInChildNoteStorage(ele).position.y + this.methods.childNotes.getPreviousPosition(ele).y*1}`)
-                  // console.log(`Try to correct pos: 
-                  //   ${this.findInChildNoteStorage(ele).position.x - this.methods.childNotes.getPreviousPosition(ele).x * 1}, 
-                  //   ${this.findInChildNoteStorage(ele).position.y - this.methods.childNotes.getPreviousPosition(ele).y * 1}`)
-                  if(this.firstDrag) {
-                    // x position
-                    this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x - this.methods.childNotes.getPreviousPosition(ele).x * 1
-                    // y position
-                    this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y - this.methods.childNotes.getPreviousPosition(ele).y * 1
-                    // turn off firstDrag
-                    this.firstDrag = false
-                  }
-                  
-                },
-                onDragEnd: () => {
-                  ele.classList.add('movedDueDrag')              
-                  this.methods.childNotes.addToPositionHistory(ele)
-                  
-                }
-              });
-            });
-            this.draggableToggle = true;
-            break;
-          case true:
-            Array.from($(".draggable")).map( (ele) => {
-              let D = Draggable.create(ele)
-              D[0].disable();
-              ele.setAttribute("contenteditable", true)
-            });
-            this.draggableToggle = false;
-            break;
-        }
-      }
-    },
+	m = {
     childNotes: {
       /**
        * Every time a note is dragged, add its position to history
@@ -142,9 +99,9 @@ export class WriteDragDrop {
         let prevPos = storageElement.positionHistory
         let originalPos = prevPos[0]
         let latestPos_isString = prevPos.slice(-1)[0]
-        
-        if(prevPos.length > 1) {
-        // transform latestPos (which is a string "translate3d") using regex
+
+        if (prevPos.length > 1) {
+          // transform latestPos (which is a string "translate3d") using regex
           let regex = /(-?\d+(\.\d*)?)/g // matches 3 in "3d" aswell (still learning regex)
           let latestPos_isArr = latestPos_isString.match(regex)
           let latestPos_xy = {
@@ -159,64 +116,206 @@ export class WriteDragDrop {
             y: 0
           }
         }
-    
-      },
-      /** 
-       * When child Note is dragged, save new position to childNoteStorage
-       */
-      listenToDragAndUpdate: (ele) => { // #DEPRECATED 2018-03-21 18:27:58
-        // not needed anymore, but the regex stuff is good, so save is somehow
-        this.childNoteStorage.map( (note,index,array) => {
-          if(note.id == ele.id) {
-            let coord = ele.getBoundingClientRect() // get coords
-            let string = ele.style.transform // adjust with style.tranform property applied from Draggable
-            let regex = /(-?\d+(\.\d*)?)/g // matches 3 in "3d" aswell (still learning regex)
-            let adjust = string.match(regex)
-            // this.childNoteStorage[index].position.x = Math.round(coord.x) // adjust displayed position
-            // this.childNoteStorage[index].position.y = Math.round(coord.y)
-            // adjust saved position, note that above adjustment and this adjustment differ, since we don't change the style property of the element
-            // Example for `left` style: 
-            /** #DONT NEED IT, since position should be save in the save method
-             * ele.left = 200px 
-             * Draggable will adjust position with transfrom3d: transform(x,y,z)
-             * In view: childNoteStorage[index].position adjusted
-             * For database: childNoteStorage[index].position should be getBoundingClientRect()
-             */
-          }
-        })
-      },
-      // should the content storage get a new key signaling that an element has been moved?
-      saveChangesAndDelegateToView() { // #DEPRECATED 2018-03-21 18:28:41
-        //get moved
-        let moved = this.methods.childNotes.saveChanges()
-        // get corresponding childNoteStorage element and update position
       },
       /**
        * Helper to gather all elements that where moved and updates their position
        * @returns elements in childNoteStorage that where moved
        */
-      saveChanges: () => {
-        // turn on firstDrag
+      saveChangesOfDragged: () => {
+        // turn on firstDrag, since this method will save(reset) the .style. position
         this.firstDrag = true
         // get all ele with class .movedDueDrag
         let movedElements = document.getElementsByClassName('movedDueDrag')
         // loop through all ele with class
-        _.forOwn(movedElements, (movedEle,key) => {
+        _.forOwn(movedElements, (movedEle, key) => {
+          console.log('​WriteDragDrop -> saveChangesOfDragged');
           let id = movedEle.id
           let newPosition = {
-            x:movedEle.getBoundingClientRect().x,
-            y:movedEle.getBoundingClientRect().y
+            x: movedEle.getBoundingClientRect().x,
+            y: movedEle.getBoundingClientRect().y
           }
           console.log(newPosition)
-          this.childNoteStorage.map( childNote => {
-            if(childNote.id == id) { // check which one matches 
+          this.childNoteStorage.map(childNote => {
+            if (childNote.id == id) { // check which one matches 
               childNote.position = newPosition
               movedEle.style.transform = '' //resets transform of Draggable
             }
           })
-
         })
       }
+    },
+		draggable: {
+			/**
+			 * make all dyn TA draggable
+			 */
+      makeDraggableToggle: () => {
+        switch (this.draggableToggle) {
+          case false:
+            Array.from($(".draggable")).map( (ele) => {
+              ele.setAttribute("contenteditable",false)
+              Draggable.create(ele, {
+                onDragStart: () => {
+                  /** 
+                   * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
+                   * If not adjusted like below dyn area will jump around since you save new x and y's 
+                   * but transform will ALWAYS be relative to ORIGINAL x and
+                   */
+                  if(this.firstDrag) { 
+                    // x position
+                    this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x - this.m.childNotes.getPreviousPosition(ele).x * 1
+                    // y position
+                    this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y - this.m.childNotes.getPreviousPosition(ele).y * 1
+                    // turn off firstDrag
+                    this.firstDrag = false
+                  }
+                  
+                },
+                onDragEnd: () => {
+                  ele.classList.add('movedDueDrag')              
+                  this.m.childNotes.addToPositionHistory(ele)
+                  
+                }
+              });
+            });
+            this.draggableToggle = true;
+            break;
+          case true:
+            Array.from($(".draggable")).map( (ele) => {
+              let D = Draggable.create(ele)
+              D[0].disable();
+              ele.setAttribute("contenteditable", true)
+            });
+            this.draggableToggle = false;
+            break;
+        }
+      }
+    },
+    init: { // new init is m.topics.getTopicsFromNotebook()
+      /** 
+       * Initialize database content with databaseContent received from note_detail
+       */
+    // addFromDatabaseNew: () => {
+      //   console.log('in here')
+      //       // need to add a check for resize: #TODO 2018-03-22 00:14:43
+      //       // get database container (original) coords
+      //       let originalContainerSize = this.databaseContent.containerSize
+      //       // get current coords
+      //       let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
+      //       // compare
+      //       let test = _.deepDifference(originalContainerSize, currentContainerSize)
+      //       // if different resize accordingly
+      //   // idCounter = this.databaseContent.latestId #TODO 2018-03-27 17:36:01 uncomment when notebooks routes are finished
+      //   this.databaseContent.content.map(ele => { //$WORKINGON_STEP2
+      //     this.childNoteStorage.push({
+      //       id: ele.id,
+      //       content: ele.content,
+      //       position: {
+      //         x: ele.position.x,
+      //         y: ele.position.y
+      //       },
+      //       // position history in format of Draggable
+      //       positionHistory: [{
+      //         x: ele.position.x,
+      //         y: ele.position.y
+      //       }]
+      //     })
+      //   })
+
+    // }
+    },
+    dynamicTextarea: {
+      /** Add textarea at mouse position
+        * 
+        * 1. Click in id#container to add a textarea at mouseposition
+        *   - If mouseclick is not directly in container textarea will not be created
+        * 2. For the very first textarea a special method is called
+        * 3. For subsequent textareas, create them with as you would expect it
+        * 4. Push everything into childNoteStorage
+        * 
+        * @param event: takes in event to extract target id and position to create element
+        * @returns 
+        */
+      addDynamicChildNote: (ev) => {
+        // check whether target has container id
+        if (ev.target.id === "note-container" ? false : true) {
+          return;
+        }
+        // If content of last textarea is empty, delete it and create a new textarea at new place
+        if (this.childNoteStorage.last()) {
+          // counter to give each dataobject an id
+          if (this.childNoteStorage.last().content === "") {
+            this.childNoteStorage.pop()
+            --_idCounter // if empty dyn area gets deleted adjust idCounter
+          }
+          let tempobj = {
+            id: _idCounter,
+            content: "",
+            position: {
+              x: ev.pageX,
+              y: ev.pageY
+            },
+            // position history in format of Draggable
+            positionHistory: [{
+              x: ev.pageX,
+              y: ev.pageY
+            }]
+          }
+          this.childNoteStorage.push(tempobj)
+        } else {
+          let tempobj = {
+            id: _idCounter,
+            content: "",
+            position: {
+              x: ev.pageX,
+              y: ev.pageY
+            },
+            // position history in format of Draggable
+            positionHistory: [{
+              x: ev.pageX,
+              y: ev.pageY
+            }]
+          }
+          this.childNoteStorage.push(tempobj)
+        }
+        // this.databaseContent.latestId = _idCounter++
+      }
+    },
+    topics: {
+
+      getTopicFromNotebook: () => {
+        console.log('get one topic')
+        let nbId = this.router.currentInstruction.params.nbid
+        let tId = this.router.currentInstruction.params.tid
+        this.dbAPI.get_topic_from_notebook(nbId, tId)
+          .then(topic => {
+            if(topic.error) {return topic} // dirty cases
+            // set _idCounter
+            _idCounter = topic[0].topics[0].latestId
+            //
+            console.log(topic[0].topics[0].notes)
+            this.childNoteStorage = topic[0].topics[0].notes
+            console.log('​WriteDragDrop -> this.childNoteStorage', this.childNoteStorage);
+          })
+      },
+
+      reveal: () => { //#DEPRECATED
+        // databaseContent provides me the whole notebook
+        console.log(this)
+        console.log('​WriteDragDrop -> this.currentTopic', this.currentTopic);
+        this.reveal = this.currentTopic
+        console.log('​WriteDragDrop -> this.reveal', this.reveal);
+        this.allChildNotes = this.reveal
+        console.log('​WriteDragDrop -> this.allChildNotes', this.allChildNotes);
+        this.childNoteStorage = this.allChildNotes
+      },
+      // validateTopicSchema: () => { //#DEPRECATED
+      //   let topic = {
+      //     title: this.currentTopic[0].topics[0].title,
+      //     notes: this.currentTopic[0].topics[0].content,
+      //     containerSize: document.getElementById('note-container').getBoundingClientRect()
+      //   }
+      //   console.log(topic)
+      // }
     }
 	}
 
@@ -228,110 +327,11 @@ export class WriteDragDrop {
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
  
-  /** Add textarea at mouse position
-    * 
-    * 1. Click in id#container to add a textarea at mouseposition
-    *   - If mouseclick is not directly in container textarea will not be created
-    * 2. For the very first textarea a special method is called
-    * 3. For subsequent textareas, create them with as you would expect it
-    * 4. Push everything into childNoteStorage
-    * 
-    * @param event: takes in event to extract target id and position to create element
-    * @returns 
-    * 
-    * @memberOf WriteDragDrop
-    */
-  addContentStorageElement(ev) {
-    // check whether target has container id
-    if (ev.target.id === "note-container" ? false : true) {
-      return;
-    }
-    // If content of last textarea is empty, delete it and create a new textarea at new place
-    if (this.childNoteStorage.last()) {
-      // counter to give each dataobject an id
-      if (this.childNoteStorage.last().content === "") {
-        this.childNoteStorage.pop()
-      }
-      let tempobj = {
-        id: idCounter,
-        content: "",
-        position: {
-          x: ev.pageX,
-          y: ev.pageY
-        },
-        originalPosition: {
-          x: ev.pageX,
-          y: ev.pageY
-        },
-        // position history in format of Draggable
-        positionHistory: [{
-          x: ev.pageX,
-          y: ev.pageY
-        }]
-      }
-      this.childNoteStorage.push(tempobj)
-    } else {
-      let tempobj = {
-        id: idCounter,
-        content: "",
-        position: {
-          x: ev.pageX,
-          y: ev.pageY
-        },
-        originalPosition: {
-          x: ev.pageX,
-          y: ev.pageY
-        },
-        // position history in format of Draggable
-        positionHistory: [{
-          x: ele.position.x,
-          y: ele.position.y
-        }]
-      }
-      this.childNoteStorage.push(tempobj)
-    }
-    ++idCounter
-  }
-
-  /** $INIT
-   * Initialize database content with databaseContent received from note_detail
-   */
-  addFromDatabaseNew() {
-    // console.log(this.databaseContent)
-          // need to add a check for resize:
-          // get database container (original) coords
-          let originalContainerSize = this.databaseContent.containerSize
-          // get current coords
-          let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
-          // compare
-          let test = _.deepDifference(originalContainerSize, currentContainerSize)
-          // if different resize accordingly
-    this.databaseContent.content.map(ele => {
-      this.childNoteStorage.push({
-        id: ele.id,
-        content: ele.content,
-        position: {
-          x: ele.position.x,
-          y: ele.position.y
-        },
-        originalPosition: { // May not need it 2018-03-21 20:58:43
-          x: ele.position.x,
-          y: ele.position.y
-        },
-        // position history in format of Draggable
-        positionHistory: [{
-          x: ele.position.x,
-          y: ele.position.y
-        }]
-      })
-    })
-    
-  }
-  
   delegateToParent() {
-    this.methods.childNotes.saveChanges() 
-
-    this.ctpWddTestdail = this.childNoteStorage
+    this.m.childNotes.saveChangesOfDragged() 
+    this.ctpWddTopics = this.childNoteStorage
+    this.latestId = _idCounter // -1 since we automatically increase after new textarea
+    console.log('​WriteDragDrop -> delegateToParent -> this.childNoteStorage', this.ctpWddTopics);
   }
 
   /**
