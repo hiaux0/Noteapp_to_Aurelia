@@ -24,10 +24,10 @@ export class DynamicTextarea {
         this.id = this.element.children[0].id
     }
 
-    getContentStorage() { // DEPRECATED
-        let temp = this.wdd.contentStorage.filter(x => console.log(x))
-		console.log('DynamicTextarea -> getContentStorage -> temp', temp)
-    }
+    // getContentStorage() { // DEPRECATED
+    //     let temp = this.wdd.contentStorage.filter(x => console.log(x))
+	// 	console.log('DynamicTextarea -> getContentStorage -> temp', temp)
+    // }
 
     // dragStart(event) { 
     //     // console.log("dragStart")
@@ -71,14 +71,14 @@ export class DynamicTextarea {
         drop_anywhere.append(draggedData);
     }
 
-    setPosition(ele, xcoord, ycoord) {
+    setPosition(ele, xcoord, ycoord) { // #DEPRECATED
         // adjust with parent position
         ele.style.position = 'absolute'
         ele.style['left'] = `${xcoord}px`
         ele.style['top'] = `${ycoord}px`
     }
 
-    correctPosition(ele, xcoord, ycoord) {
+    correctPosition(ele, xcoord, ycoord) { // #DEPRECATED
         // setup variables for location correction
         let dropLocation_x, dropLocation_y,
             delta_x, delta_y;

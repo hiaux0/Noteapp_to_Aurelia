@@ -112,6 +112,14 @@
               "Draggable.js",
               "TweenLite.js"
             ]
+          },
+          {
+            "name": "jquery-contextmenu",
+            "main": "dist/jquery.contextMenu.js",
+            "path": "../node_modules/jquery-contextmenu",
+            "resources": [
+              "dist/jquery.contextMenu.min.css"
+            ]
           }
         ]
       }

@@ -1,0 +1,23 @@
+<template>
+  <require from="../../stylesheets/home.css"></require>
+
+  <div id="landing-container">
+    <div >
+      <h3 style="text-align:center;">Things to heed</h3>
+      <h5>
+        <ol>
+          <li>
+            #DONE You can only create a new Topic when you are in route: notebooks/:nbid/topics/:tid
+            <ol>
+              <li>
+                Actually #FIXME #BUG: Can't create a topic if no topic is present, since you cant enter the :tid route. Thus we need to change
+                how topic creatin is handled, which would make the heed redundant.
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </h5>
+    </div>
+  </div>
+  
+</template>

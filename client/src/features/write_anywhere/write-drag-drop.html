@@ -2,25 +2,27 @@
     <require from="./dynamic_textarea/dynamic-textarea"></require>
     <require from='../../../stylesheets/write-drag-drop.css'></require>
     <require from="../connect_areas/connect-areas" ></require>
+    <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <button class="btn btn-outline-secondary" click.delegate="m.draggable.makeDraggableToggle()">Draggable is ${draggableToggle?'on':'off'}</button>
+    <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
+        Draggable is ${draggableToggle?'on':'off'}
+    </button>
+    <button class="btn btn-outline-success" click.delegate="this.m.view.notes.correctNotePositions()">Correct Positions </button>
 
     <div 
         id="note-container" 
-        dblclick.trigger="removeLast()" 
-        click.delegate="m.dynamicTextarea.addDynamicChildNote($event)"
-        class="dropable write-anywhere" 
-        >
+        dblclick.trigger="m.view.notes.removeLast()" 
+        click.delegate="m.view.notes.addDynamicChildNote($event)"
+        class="dropable write-anywhere" >
         <!-- <connect-areas></connect-areas> 2018-03-27 17:21:12 #TODO uncomment after notbooks routes are finished--> 
         <dynamic-textarea 
-            repeat.for="childNotes of childNoteStorage" 
-            content.two-way="childNotes.content"
-            position.two-way="childNotes.position"
+            repeat.for="note of noteStorage" 
+            content.two-way="note.content"
+            position.two-way="note.position"
             hasfocus.bind="true"  
-            dyna_textarea_id.bind="childNotes.id"
+            dyna_textarea_id.bind="note.id"
         ></dynamic-textarea>
-        ${reveal}
     </div>
 
 </template>

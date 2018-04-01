@@ -1,7 +1,7 @@
 /* Notebooks layout */
 .notebooks-container {
   display: grid;
-  grid-template-columns: repeat(12, 1fr)
+  grid-template-columns: repeat(12, 1fr);
 }
 
 /* sidebar and view inherited from app.css */

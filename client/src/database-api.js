@@ -191,7 +191,9 @@ patch_topic_from_notebook(nb_id, t_id, t_update) {
 }
 
 delete_a_topic_from_notebook(nb_id, t_id) {
-  const url = this.baseUrl + "/notebooks/" + nb_id + "/topics" + t_id
+  console.log("nb: ", nb_id)
+  console.log("tid: ", t_id)
+  const url = this.baseUrl + "/notebooks/" + nb_id + "/topics/" + t_id
   return client.fetch(url, {
     method: "DELETE"
   }).then(response => response.json())
