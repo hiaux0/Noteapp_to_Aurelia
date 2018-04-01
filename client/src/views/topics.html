@@ -50,10 +50,12 @@
 
     <div class="grid-view">
        <!-- database-content.two-way="currentNotebook" -->
+       <!-- #DEPRECATED topic_clicked -->
       <div if.bind="topic_clicked">
+        <!-- receive-current-topic.two-way="provide_topic"  -->
           <write-drag-drop 
             ctp-wdd-topics.two-way='notesFromWDD' 
-            receive-current-topic.two-way="provide_topic" 
+            latest-id-of-notes.two-way="latestId"
             wait-for-topic-clicked.two-way="topic_clicked">
           </write-drag-drop>
       </div>
@@ -61,7 +63,7 @@
                 <button class="btn btn-outline-secondary" click.delegate="m.http.postNotesToTopic()">
                   Save
                 </button>
-                <button class="btn btn-outline-danger" click.delegate="deleteDetail()">
+                <button class="btn btn-outline-danger" click.delegate="m.http.deleteTopic()">
                   Delete Topic
                 </button>
             </div>

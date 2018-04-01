@@ -1,8 +1,8 @@
 #note-container {
-  overflow:auto;
+  overflow-y:scroll;
 
   height: 50vh;
   width: 50wh;
-  padding: 0.5em;
+  margin: 0.5em;
   border: 1px dotted #ccc;
 }

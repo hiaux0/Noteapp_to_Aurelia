@@ -25,20 +25,15 @@ export class Topics {
     this.params = params
     this.nbId = params.nbid
     this.tId = params.tid
-    console.log('topics activated')
     // return new Redirect("/tId")
     return this.m.http.getTopicsFromNotebook(this.nbId)
     
   }
   
   canActivate(params) {
-    console.log("topics can activate")
       if (params.tid) {
-        console.log("tid active")
         this.topic_clicked = true
-      } else {
-        console.log("tid not active")
-      }
+      } 
   }
 
   determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
@@ -48,13 +43,21 @@ export class Topics {
       createNewTopic: () => {
        
       },
-      
+      deleteTopic: () => {
+        this.dbAPI.delete_a_topic_from_notebook(this.nbId, this.tId)
+          .then(response => {
+            console.log(response)
+          })
+      },
       getTopicsFromNotebook: (nbId) => {
         this.dbAPI.get_topics_from_notebook('/notebooks', nbId)
           .then(data => {
-            if(data.error) {return data}
-            this.currentNotebook = data 
-            console.log('​Topics -> this.currentNotebook', this.currentNotebook);
+            if(data === null) {
+              console.log("data null")
+              throw new Error("This notebook was deleted") 
+            } else { 
+              this.currentNotebook = data 
+          }
           })
       },
       postNewEmptyTopic: () => {
@@ -62,7 +65,8 @@ export class Topics {
         let new_t = {
           title: this.newEmptyTopicTitle,
           notes: [],
-          containerSize: document.getElementById('note-container').getBoundingClientRect(),
+          // containerSize: document.getElementById('note-container').getBoundingClientRect(),
+          containerSize: {}, // #FIXME #3003oiejfo : no boundingRect specified, thus need to update it later, maybe after first save?
           latestId: 0
         }
         console.log(new_t.containerSize)
@@ -133,28 +137,26 @@ export class Topics {
         ev.preventDefault()
         document.getElementById("create-new-note-db").style.display = "none"
       },
-      deleteTopic: () => {
-        this.dbAPI
-      },
-      provide_topic_for_view: (nbId, tId) => {
-        console.log('get one topic')
-        // let nbId = this.router.currentInstruction.params.nbid
-        // let tId = this.router.currentInstruction.params.tid
-        this.dbAPI.get_topic_from_notebook(nbId, tId)
-          .then(topic => {
-            if (topic.error) { return topic } // dirty cases
-            // set _idCounter
-            // _idCounter = topic[0].topics[0].latestId #TODO
-            //
-            console.log(topic[0].topics[0].notes)
-            this.provide_topic = new Promise(resolve => {
-              this.provide_topic = topic[0].topics[0].notes
-              resolve(this.provide_topic)
-            })
-            console.log('​WriteDragDrop -> this.childNoteStorage', this.provide_topic);
-          })
+   
+      // provide_topic_for_view: (nbId, tId) => {
+      //   console.log('get one topic')
+      //   // let nbId = this.router.currentInstruction.params.nbid
+      //   // let tId = this.router.currentInstruction.params.tid
+      //   this.dbAPI.get_topic_from_notebook(nbId, tId)
+      //     .then(topic => {
+      //       if (topic.error) { return topic } // dirty cases
+      //       // set _idCounter
+      //       // _idCounter = topic[0].topics[0].latestId #TODO
+      //       //
+      //       console.log(topic[0].topics[0].notes)
+      //       this.provide_topic = new Promise(resolve => {
+      //         this.provide_topic = topic[0].topics[0].notes
+      //         resolve(this.provide_topic)
+      //       })
+      //       console.log('​WriteDragDrop -> this.childNoteStorage', this.provide_topic);
+      //     })
 
-      }
+      // }
     }
   }
 }

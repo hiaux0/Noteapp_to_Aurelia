@@ -15,6 +15,7 @@
     "bootstrap": "^4.0.0",
     "gsap": "^1.20.4",
     "jquery": "^2.2.4",
+    "jquery-contextmenu": "^3.0.0-beta.2",
     "lodash": "^4.17.5",
     "requirejs": "^2.3.2",
     "text": "github:requirejs/text#latest"

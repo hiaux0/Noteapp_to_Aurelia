@@ -1,93 +1,123 @@
-import { bindable, inject } from 'aurelia-framework'
-import { EventAggregator } from 'aurelia-event-aggregator'
-import { activationStrategy, Router } from 'aurelia-router'
+/** Readme
+ * 1. Handles notes view, ie, drag and drop, dynamic creation at mouse click
+ * 2. Init: get topics from notebook from router params (#INIT)
+ *  2.1 Displays content of each note in note-container
+ * 3. Save changes during note writing and delegates them to topic.cmpt
+ */
 
-import { NewEntrySelected, EntryUpdated } from "../../messages"
-import helper from '../helper_lib'
-import connectArea from '../connect_areas/connect-areas'
-import { DatabaseAPI } from '../../database-api';
-import Draggable from "gsap/Draggable";
-import {App} from '../../app'
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    Imports
+//*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
 
-let idCounter = 1;
+  import { bindable, inject } from 'aurelia-framework'
+  import { Router } from 'aurelia-router'
+
+  import { ContextMenu, ContextMenuItemTypes } from 'jquery-contextmenu';
+  import { DatabaseAPI } from '../../database-api';
+  import connectArea from '../connect_areas/connect-areas'
+  import Draggable from "gsap/Draggable";
+  import helper from '../helper_lib'
+  
+const _conMenu = new ContextMenu();
 let _idCounter = 0;
 let _latestId = 0;
 
-/**
- * Deep diff between two object, using lodash
+/** Deep diff between two object, using lodash
  * @param  {Object} object Object compared
  * @param  {Object} base   Object to compare with
  * @return {Object}        Return a new object who represent the diff
  * @source https://gist.github.com/Yimiprod/7ee176597fef230d1451
  */
-function deepDifference(object, base) {
-	function changes(object, base) {
-		return _.transform(object, function (result, value, key) {
-			if (!_.isEqual(value, base[key])) {
-				result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
-			}
-		});
-	}
-	return changes(object, base);
-}
-_.mixin({ 'deepDifference': deepDifference });
+  function deepDifference(object, base) {
+    function changes(object, base) {
+      return _.transform(object, function (result, value, key) {
+        if (!_.isEqual(value, base[key])) {
+          result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+        }
+      });
+    }
+    return changes(object, base);
+  }
+  _.mixin({ 'deepDifference': deepDifference });
 
-@inject(App, DatabaseAPI, Element, EventAggregator, Router)
+//
+@inject(DatabaseAPI, Element, Router)
 export class WriteDragDrop {
   draggableToggle = false
-  Draggable = Draggable
   firstDrag = true
-  currentTopic
-  /**
-   * Should be of the from
-   * 
-   * 
-   * @memberOf WriteDragDrop
-   */
-  // @bindable databaseContent
-  @bindable receiveCurrentTopic
+  // currentTopic
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
-  @bindable waitForTopicClicked //boolean
+  @bindable latestIdOfNotes
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
-//    Initializing Component 
-//
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+//     Component Initialization
+//*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(app, dbAPI, element, ea, router) {
-    this.app = app
+  constructor(dbAPI, element, router) {
     this.dbAPI = dbAPI
-    this.ea = ea
     this.element = element
-    this.childNoteStorage = []
+    this.noteStorage = [] // #INIT
     this.router = router
   }
 
   attached() {
-    console.log("wdd attached")
-    this.m.topics.getTopicFromNotebook()
+    this.m.http.getTopicFromNotebook()
+    // add context menu
+    _conMenu.create(this._wdd_conMenu)
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
-//    Method Object
-//
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+//    Methods
+//*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
 
 	m = {
-    childNotes: {
+    http: {
+      getTopicFromNotebook: () => { //#INIT
+        let nbId = this.router.currentInstruction.params.nbid
+        let tId = this.router.currentInstruction.params.tid
+        this.dbAPI.get_topic_from_notebook(nbId, tId)
+          .then(topic => {
+            if (topic.error) { return topic } // dirty cases
+            // set _idCounter
+            _idCounter = topic[0].topics[0].latestId
+            this.noteStorage = topic[0].topics[0].notes // pushes data the main storage
+          })
+      },
+    },
+    notes: {
       /**
        * Every time a note is dragged, add its position to history
        * //TODO consider adding a limit;
        */
       addToPositionHistory: (ele) => {
-        let storageEle = this.findInChildNoteStorage(ele)
+        let storageEle = this.m.notes.findInChildNoteStorage(ele)
         // push new position to history
         storageEle.positionHistory.push(ele.style.transform)
+      },
+      /**
+       * Takes in HTML element and
+       * @returns corresponding element in storage
+       */
+      findInChildNoteStorage: (ele) => {
+        let result;
+        let id = ele.id
+        this.noteStorage.map(childNote => {
+          if (childNote.id == id) {
+            result = childNote;
+          }
+        })
+        return result
       },
       /**
        * @param ele From `ele` get its "latest" previous positions. NOTE latest position saved in Draggable format, ie a string "tranform3d(x,y,z)"
@@ -95,12 +125,17 @@ export class WriteDragDrop {
        */
       getPreviousPosition: (ele) => {
         // prepare variables
-        let storageElement = this.findInChildNoteStorage(ele)
+        console.log('------------------------------')
+        console.log("Beging first adjust")
+        let storageElement = this.m.notes.findInChildNoteStorage(ele)
         let prevPos = storageElement.positionHistory
-        let originalPos = prevPos[0]
+        let originalPos = prevPos[0] // #DEPRECATED
+        console.log('​WriteDragDrop -> originalPos', originalPos);
         let latestPos_isString = prevPos.slice(-1)[0]
+        console.log('​WriteDragDrop -> latestPos_isString', latestPos_isString);
 
         if (prevPos.length > 1) {
+          console.log("prevPos.length > 1")
           // transform latestPos (which is a string "translate3d") using regex
           let regex = /(-?\d+(\.\d*)?)/g // matches 3 in "3d" aswell (still learning regex)
           let latestPos_isArr = latestPos_isString.match(regex)
@@ -108,9 +143,11 @@ export class WriteDragDrop {
             x: latestPos_isArr[1],
             y: latestPos_isArr[2]
           }
+          console.log('​WriteDragDrop -> latestPos_xy', latestPos_xy);
           return (latestPos_xy)
         }
         else {
+          console.log("prevPos.length <= 1")
           return {
             x: 0,
             y: 0
@@ -119,7 +156,7 @@ export class WriteDragDrop {
       },
       /**
        * Helper to gather all elements that where moved and updates their position
-       * @returns elements in childNoteStorage that where moved
+       * @returns elements in noteStorage that where moved
        */
       saveChangesOfDragged: () => {
         // turn on firstDrag, since this method will save(reset) the .style. position
@@ -135,222 +172,247 @@ export class WriteDragDrop {
             y: movedEle.getBoundingClientRect().y
           }
           console.log(newPosition)
-          this.childNoteStorage.map(childNote => {
+          let adjustPosition = this.m.view.notes.adjust_position_multiple_args(newPosition)
+          this.noteStorage.map(childNote => {
+            console.log('​Pos was WriteDragDrop -> childNote.position', childNote.position);
             if (childNote.id == id) { // check which one matches 
-              childNote.position = newPosition
+              childNote.position = adjustPosition
+              console.log('​Pos is WriteDragDrop -> childNote.position', childNote.position);
               movedEle.style.transform = '' //resets transform of Draggable
             }
           })
         })
       }
     },
-		draggable: {
-			/**
-			 * make all dyn TA draggable
-			 */
-      makeDraggableToggle: () => {
-        switch (this.draggableToggle) {
-          case false:
-            Array.from($(".draggable")).map( (ele) => {
-              ele.setAttribute("contenteditable",false)
-              Draggable.create(ele, {
-                onDragStart: () => {
-                  /** 
-                   * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
-                   * If not adjusted like below dyn area will jump around since you save new x and y's 
-                   * but transform will ALWAYS be relative to ORIGINAL x and
-                   */
-                  if(this.firstDrag) { 
-                    // x position
-                    this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x - this.m.childNotes.getPreviousPosition(ele).x * 1
-                    // y position
-                    this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y - this.m.childNotes.getPreviousPosition(ele).y * 1
-                    // turn off firstDrag
-                    this.firstDrag = false
+    view: {
+      draggable: {
+        /** make all notes draggable
+         */
+        makeDraggableToggle: () => {
+          switch (this.draggableToggle) {
+            case false:
+              Array.from($(".draggable")).map((ele) => {
+                ele.setAttribute("contenteditable", false)
+                Draggable.create(ele, {
+                  onDragStart: () => {
+                    /** #?!BUG: If there is a bug when dragging, ie. notes jump on the FIRST drag. See here.
+                     * More exactly: in if(this.firstDrag) where the first drag case is checked, adjust via the `this.m.notes.getPreviousPosition(ele)` function
+                     * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
+                     * If not adjusted like below dyn area will jump around since you save new x and y's 
+                     * but transform will ALWAYS be relative to ORIGINAL x and y
+                     */
+                      // if (this.firstDrag) {
+                      //   // x position
+                      //   this.findInChildNoteStorage(ele).position.x = this.findInChildNoteStorage(ele).position.x // + this.m.notes.getPreviousPosition(ele).x * 1
+                      //   // y position
+                      //   this.findInChildNoteStorage(ele).position.y = this.findInChildNoteStorage(ele).position.y // + this.m.notes.getPreviousPosition(ele).y * 1
+                      //   // turn off firstDrag
+                      //   this.firstDrag = false
+                      // }
+                  },
+                  onDragEnd: () => {
+                    ele.classList.add('movedDueDrag')
+                    this.m.notes.addToPositionHistory(ele)
                   }
-                  
-                },
-                onDragEnd: () => {
-                  ele.classList.add('movedDueDrag')              
-                  this.m.childNotes.addToPositionHistory(ele)
-                  
-                }
+                });
               });
-            });
-            this.draggableToggle = true;
-            break;
-          case true:
-            Array.from($(".draggable")).map( (ele) => {
-              let D = Draggable.create(ele)
-              D[0].disable();
-              ele.setAttribute("contenteditable", true)
-            });
-            this.draggableToggle = false;
-            break;
+              this.draggableToggle = true;
+              break;
+            case true:
+              Array.from($(".draggable")).map((ele) => {
+                let D = Draggable.create(ele)
+                D[0].disable();
+                ele.setAttribute("contenteditable", true)
+              });
+              this.draggableToggle = false;
+              break;
+          }
         }
-      }
-    },
-    init: { // new init is m.topics.getTopicsFromNotebook()
-      /** 
-       * Initialize database content with databaseContent received from note_detail
-       */
-    // addFromDatabaseNew: () => {
-      //   console.log('in here')
-      //       // need to add a check for resize: #TODO 2018-03-22 00:14:43
-      //       // get database container (original) coords
-      //       let originalContainerSize = this.databaseContent.containerSize
-      //       // get current coords
-      //       let currentContainerSize = document.getElementById("note-container").getBoundingClientRect()
-      //       // compare
-      //       let test = _.deepDifference(originalContainerSize, currentContainerSize)
-      //       // if different resize accordingly
-      //   // idCounter = this.databaseContent.latestId #TODO 2018-03-27 17:36:01 uncomment when notebooks routes are finished
-      //   this.databaseContent.content.map(ele => { //$WORKINGON_STEP2
-      //     this.childNoteStorage.push({
-      //       id: ele.id,
-      //       content: ele.content,
-      //       position: {
-      //         x: ele.position.x,
-      //         y: ele.position.y
-      //       },
-      //       // position history in format of Draggable
-      //       positionHistory: [{
-      //         x: ele.position.x,
-      //         y: ele.position.y
-      //       }]
-      //     })
-      //   })
+      },
+      notes: {
+        /** Add textarea at mouse position
+          * 
+          * 1. Click in id#container to add a textarea at mouseposition
+          *   - If mouseclick is not directly in container textarea will not be created
+          * 2. For the very first textarea a special method is called
+          * 3. For subsequent textareas, create them with as you would expect it
+          * 4. Push everything into noteStorage
+          * 
+          * @param event: takes in event to extract target id and position to create element
+          * @returns 
+          */
+         // !note !dyn-note
+        addDynamicChildNote: (ev) => {
+          // If target is not in valid area, ie not in note-container AND not dyn-textarea return with no action
+          let notNoteContainer = ev.target.id === "note-container" ? false : true
+          let notDynTextarea = ev.target.tagName === "DYNAMIC-TEXTAREA" ? false : true
+          if (notNoteContainer && notDynTextarea) {
+            return;
+          }
 
-    // }
-    },
-    dynamicTextarea: {
-      /** Add textarea at mouse position
-        * 
-        * 1. Click in id#container to add a textarea at mouseposition
-        *   - If mouseclick is not directly in container textarea will not be created
-        * 2. For the very first textarea a special method is called
-        * 3. For subsequent textareas, create them with as you would expect it
-        * 4. Push everything into childNoteStorage
-        * 
-        * @param event: takes in event to extract target id and position to create element
-        * @returns 
-        */
-      addDynamicChildNote: (ev) => {
-        // check whether target has container id
-        if (ev.target.id === "note-container" ? false : true) {
-          return;
-        }
-        // If content of last textarea is empty, delete it and create a new textarea at new place
-        if (this.childNoteStorage.last()) {
-          // counter to give each dataobject an id
-          if (this.childNoteStorage.last().content === "") {
-            this.childNoteStorage.pop()
-            --_idCounter // if empty dyn area gets deleted adjust idCounter
-          }
-          let tempobj = {
-            id: _idCounter,
-            content: "",
-            position: {
-              x: ev.pageX,
-              y: ev.pageY
-            },
-            // position history in format of Draggable
-            positionHistory: [{
-              x: ev.pageX,
-              y: ev.pageY
-            }]
-          }
-          this.childNoteStorage.push(tempobj)
-        } else {
-          let tempobj = {
-            id: _idCounter,
-            content: "",
-            position: {
-              x: ev.pageX,
-              y: ev.pageY
-            },
-            // position history in format of Draggable
-            positionHistory: [{
-              x: ev.pageX,
-              y: ev.pageY
-            }]
-          }
-          this.childNoteStorage.push(tempobj)
-        }
-        // this.databaseContent.latestId = _idCounter++
-      }
-    },
-    topics: {
+          // If content of last textarea is empty, delete it and create a new textarea at new place
+          if (this.noteStorage.last()) {
+            // counter to give each dataobject an id
+            if (this.noteStorage.last().content === "") {
+              this.noteStorage.pop()
+              --_idCounter // if empty dyn area gets deleted adjust idCounter
+            }
+            let tempobj = {
+              id: _idCounter,
+              content: "",
+              position: this.m.view.notes.adjust_position_multiple_args.call(this,ev.pageX, ev.pageY),
+              // position history in format of Draggable
+              positionHistory: [this.m.view.notes.adjust_position_multiple_args.call(this,ev.pageX, ev.pageY)]
 
-      getTopicFromNotebook: () => {
-        console.log('get one topic')
-        let nbId = this.router.currentInstruction.params.nbid
-        let tId = this.router.currentInstruction.params.tid
-        this.dbAPI.get_topic_from_notebook(nbId, tId)
-          .then(topic => {
-            if(topic.error) {return topic} // dirty cases
-            // set _idCounter
-            _idCounter = topic[0].topics[0].latestId
-            //
-            console.log(topic[0].topics[0].notes)
-            this.childNoteStorage = topic[0].topics[0].notes
-            console.log('​WriteDragDrop -> this.childNoteStorage', this.childNoteStorage);
+            }
+            this.noteStorage.push(tempobj)
+          } 
+          else { // else just add new area
+            let tempobj = {
+              id: _idCounter,
+              content: "",
+              position: this.m.view.notes.adjust_position_multiple_args.call(this,ev.pageX,ev.pageY),
+              // position history in format of Draggable
+              positionHistory: [this.m.view.notes.adjust_position_multiple_args.call(this,ev.pageX, ev.pageY)]
+            }            
+            this.noteStorage.push(tempobj)
+          }
+          _idCounter++
+        },
+        ////////////////////////////// Playground //////////////////////////////
+        /**
+         * 2018-03-31 19:51:19, When note-container size and position changes, adjust corresponding notes positions
+         */
+        correctNotePositions: () => {
+          console.log('​Before WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
+          this.noteStorage.map(ele => {
+            console.log( ele.position)
+            ele.position = (this.m.view.notes.adjust_position_multiple_args(ele.position))
+
           })
+          console.log('​After WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
+        },
+        /**
+         * Can take in object {x,y} or just coords x,y
+         * @returns an object {x,y} with adjusted coords
+         * @BUGS_#0104pufnth When deleting empty note to create a new note, the height of the empty one also counts into cumHeight
+         * @Tasks 1. Take child note coords and adjust according to note-container 
+         * 2. Fixing unusual bug: When creating dyn notes, the custom components `dynamic-textarea` stack on each other, thus the position of every new dyn note gets pushed down according to the stack size.
+         * @CONSIDER 
+         * 1. Generalizing to more than getBoundingClientRect case by passing adjuster as args aswell
+         * 2. Using hight order functions to split this method into one for x and one for y, right now this method is called too often (twice?)
+         */
+        adjust_position_multiple_args: function() {
+          const note_container_coords = document.getElementById('note-container').getBoundingClientRect()
+          fixStackingBug.call(this)
+          
+          // x,y case
+          let args = arguments
+          if(args.length === 2) {
+            const x = args[0], y = args[1]
+              return adjustCoordinates.call(this,x,y) // <----------- RETURN
+          } 
+          // {x,y} case
+          else if (typeof args === "object") {
+            const x = args[0].x, y =args[0].y
+            return adjustCoordinates.call(this,x, y) // <----------- RETURN
+          }
+          else {
+            throw new Error("Please recheck your args, should be of type ({x,y}) or (x,y)")
+          }
+          //@Task 1.
+          function adjustCoordinates(x,y) {
+            return {
+              x: x - note_container_coords.x,
+              y: fixStackingBug.call(this,y - note_container_coords.y),
+            }
+          }
+          //@Task 2.: Only need to apply to y
+          function fixStackingBug(yCoord) {
+            if(this.noteStorage.length === 0) {return coordsObj} // if no notes just return the input
+            console.log(this.noteStorage.last())
+            // keep track of noteStorage 'stack' size
+            console.log(this.noteStorage.length)
+            // get cumulative height of notes, need to cycle through every dyn note, since the height is dependent in real time on every previous dyn note
+            let cumHeight = Array.from(document.getElementsByClassName('dynamic-textarea')).reduce(reduceToCumHeight,0)
+              function reduceToCumHeight(acc,curVal) {
+                // get height
+                return acc + curVal.getBoundingClientRect().height
+              }
+            return yCoord-cumHeight
+          }
+        },
+        ////////////////////////////// Playground //////////////////////////////
+        /** Be able to quickly remove last note by double clicking
+         * #CONSIDER#funtsht adding a safety net, to not remove important content by accident
+         */
+        removeLast: () => {
+          console.log(this)
+          this.noteStorage.pop()
+        }
       },
-
-      reveal: () => { //#DEPRECATED
-        // databaseContent provides me the whole notebook
-        console.log(this)
-        console.log('​WriteDragDrop -> this.currentTopic', this.currentTopic);
-        this.reveal = this.currentTopic
-        console.log('​WriteDragDrop -> this.reveal', this.reveal);
-        this.allChildNotes = this.reveal
-        console.log('​WriteDragDrop -> this.allChildNotes', this.allChildNotes);
-        this.childNoteStorage = this.allChildNotes
-      },
-      // validateTopicSchema: () => { //#DEPRECATED
-      //   let topic = {
-      //     title: this.currentTopic[0].topics[0].title,
-      //     notes: this.currentTopic[0].topics[0].content,
-      //     containerSize: document.getElementById('note-container').getBoundingClientRect()
-      //   }
-      //   console.log(topic)
-      // }
     }
-	}
+  }
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    Method Context Menu
+//*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
+
+_wdd_conMenu = {
+  selector: '#note-container',
+  items: {
+    correctNotePosition: {
+      name: 'Correct Note Position',
+      callback: () => this.m.view.notes.correctNotePositions()
+    },
+    draggableToggle: {
+      name: 'Draggable Toggle',
+      callback: () => this.m.view.draggable.makeDraggableToggle()
+    },
+    lengthOfNoteStorage: {
+      name: 'Length of note storage',
+      callback: () => this.lengthOfNoteStorage()
+    },
+    saveChanges: {
+      name: 'Save Changes',
+      callback: () => this.delegateToParent()
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //
 //    Method old style: Consider putting these in the method object
-//
-//////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
+//*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
  
-  delegateToParent() {
-    this.m.childNotes.saveChangesOfDragged() 
-    this.ctpWddTopics = this.childNoteStorage
-    this.latestId = _idCounter // -1 since we automatically increase after new textarea
-    console.log('​WriteDragDrop -> delegateToParent -> this.childNoteStorage', this.ctpWddTopics);
+  delegateToParent = () => {
+    this.m.notes.saveChangesOfDragged() 
+    this.ctpWddTopics = this.noteStorage
+    this.latestIdOfNotes = _idCounter // how is this delegated to the parent?
+    this.notesContainer = document.getElementById('note-container').getBoundingClientRect() // #CONSIDER : renaming, 
   }
 
-  /**
-   * Takes in HTML element and
-   * @returns corresponding element in storage
-   */
-  findInChildNoteStorage(ele) {
-    let result;
-    let id = ele.id
-    this.childNoteStorage.map( childNote => {
-      if(childNote.id == id) {
-        result = childNote;
-      }
-    })
-    return result
+  // test for dynly added html, want that to have aurelia power
+  test() {
+    let div = document.createElement("DIV")
+    div.innerHTML = '<span textcontent.bind="draggableToggle">Hello</span>'
+    document.getElementById("note-container").appendChild(div)
   }
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    Playground
+ //*
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ /////////////////////////////////////////////////////////////////////////////////////////////
 
-  removeLast() {
-    this.childNoteStorage.pop()
+  lengthOfNoteStorage() {
+    console.log(this.noteStorage.last())
   }
-  
 }
