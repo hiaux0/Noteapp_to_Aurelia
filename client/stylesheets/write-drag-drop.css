@@ -1,5 +1,5 @@
 #note-container {
-  overflow-y:scroll;
+  overflow:scroll;
 
   height: 50vh;
   width: 50wh;

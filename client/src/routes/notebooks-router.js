@@ -10,7 +10,6 @@ export class NotebooksRouter {
     this.app = app
     this.dbAPI = dbAPI
   }
-
   // determineActivationStrategy() { return "replace" }// return "invoke-lifecycle" }
 
   mockData = {
@@ -51,41 +50,13 @@ export class NotebooksRouter {
       }
     ]
   }
-  // methods = {
-  //   http: {
-  //     getNotebooks: () => {
-  //       this.dbAPI.get_notebooks("/notebooks")
-  //         .then(data => {
-  //           console.log(data)
-  //         })
-  //     },
-  //     topics: {
-  //       getTopicsFromNotebook: (nb_id) => {
-  //         this.dbAPI.get_topics_from_notebook("/notebooks",nb_id)
-  //           .then(notebook => console.log(notebook))
-  //       }
-  //     }
-  //   },
-  //   topics: {
-  //     cancelTopicCreation: (ev) => {
-  //       ev.preventDefault()
-  //       document.getElementById("create-new-note").style.display = "none"
-  //     }
-  //   },
-  //   utils: {
-  //     updateX: (ev) => {
-  //       this.app.xcoord = ev.pageX
-  //       this.app.ycoord = ev.pageY
-  //     }
-  //   }
-  // }
+  
   configureRouter(config, router) {
     config.options.pushState = true;
     // config.options.root = '/notebooks';
     config.title = 'Notebooks';
     config.map([
       { route: '', redirect: 'all', },
-      // { route: ['','notebooks'], name: 'allNotebooks', title: 'All Notebooks', moduleId: '../views/all-notebooks' },
       { route: 'all', name: 'allNotebooks', title: "All Notebooks", moduleId: "../views/all-notebooks" },
       { route: '/:nbid/topics', name: 'notebookDetail', title: "Notebook Detail", moduleId: "../views/topics" },
       { route: 'topics', name: 'topics', title: 'Topics', moduleId: '../views/topics', nav: true },

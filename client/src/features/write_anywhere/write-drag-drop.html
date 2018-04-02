@@ -1,14 +1,16 @@
 <template > 
     <require from="./dynamic_textarea/dynamic-textarea"></require>
-    <require from='../../../stylesheets/write-drag-drop.css'></require>
-    <require from="../connect_areas/connect-areas" ></require>
-    <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
+        <require from='../../../stylesheets/write-drag-drop.css'></require>
+        <require from="../connect_areas/connect-areas" ></require>
+        <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
     <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
-        Draggable is ${draggableToggle?'on':'off'}
+        Draggable is ${draggableToggleNotes?'on':'off'}
     </button>
-    <button class="btn btn-outline-success" click.delegate="this.m.view.notes.correctNotePositions()">Correct Positions </button>
+    <button class="btn btn-outline-success" click.delegate="m.view.draggable.makeNoteContainerDraggableToggle()">
+        Note Container Draggable is ${draggableToggleNoteContainer?'on':'off'}
+    </button>
 
     <div 
         id="note-container" 

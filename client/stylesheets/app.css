@@ -15,7 +15,7 @@ input {
   width: 100%;
   height: 100vh;}
 
-.grid-view { grid-area: 1/4/2/13; }
+.grid-view { grid-area: 1/4/2/13; overflow:scroll;}
 .grid-sidebar { grid-area: 1/1/2/4; }
 
 #create-new-note { 

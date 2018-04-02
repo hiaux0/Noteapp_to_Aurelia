@@ -47,7 +47,8 @@ let _latestId = 0;
 //
 @inject(DatabaseAPI, Element, Router)
 export class WriteDragDrop {
-  draggableToggle = false
+  draggableToggleNotes = false
+  draggableToggleNoteContainer = false
   firstDrag = true
   // currentTopic
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
@@ -186,14 +187,18 @@ export class WriteDragDrop {
     },
     view: {
       draggable: {
-        /** make all notes draggable
+        /** Make all notes draggable.
+         * @CONSIDER Autoscroll only works if #note-container is scrollable, doesn't support "new" autoscroll, ie can't scroll in "unknown territory"
          */
         makeDraggableToggle: () => {
-          switch (this.draggableToggle) {
+          switch (this.draggableToggleNotes) {
             case false:
               Array.from($(".draggable")).map((ele) => {
                 ele.setAttribute("contenteditable", false)
                 Draggable.create(ele, {
+                  autoScroll: 1,
+                  // type: "x,y",
+                  // bounds: document.getElementById("note-container"),
                   onDragStart: () => {
                     /** #?!BUG: If there is a bug when dragging, ie. notes jump on the FIRST drag. See here.
                      * More exactly: in if(this.firstDrag) where the first drag case is checked, adjust via the `this.m.notes.getPreviousPosition(ele)` function
@@ -216,7 +221,7 @@ export class WriteDragDrop {
                   }
                 });
               });
-              this.draggableToggle = true;
+              this.draggableToggleNotes = true;
               break;
             case true:
               Array.from($(".draggable")).map((ele) => {
@@ -224,10 +229,33 @@ export class WriteDragDrop {
                 D[0].disable();
                 ele.setAttribute("contenteditable", true)
               });
-              this.draggableToggle = false;
+              this.draggableToggleNotes = false;
               break;
           }
-        }
+        },
+        /** 1. Make the whole #note-container draggable.
+         * 2. Also turn off notes draggable to prevents drag bugs
+         */
+        makeNoteContainerDraggableToggle: () => {
+          switch (this.draggableToggleNoteContainer) {
+            case false:
+              Draggable.create("#note-container", {
+                type: "scroll",
+                edgeResistance: 0.5,
+                throwProps: true
+              });
+              this.draggableToggleNoteContainer = true;
+              // 2.
+              this.draggableToggleNotes = true;
+              this.m.view.draggable.makeDraggableToggle()
+              break;
+            case true:
+              let D = Draggable.create("#note-container")
+              D[0].disable();
+              this.draggableToggleNoteContainer = false;
+              break;
+          }
+        },
       },
       notes: {
         /** Add textarea at mouse position
@@ -279,23 +307,23 @@ export class WriteDragDrop {
           }
           _idCounter++
         },
-        ////////////////////////////// Playground //////////////////////////////
+        ////////////////////////////// v Playground //////////////////////////////
         /**
          * 2018-03-31 19:51:19, When note-container size and position changes, adjust corresponding notes positions
          */
-        correctNotePositions: () => {
-          console.log('​Before WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
-          this.noteStorage.map(ele => {
-            console.log( ele.position)
-            ele.position = (this.m.view.notes.adjust_position_multiple_args(ele.position))
-
-          })
-          console.log('​After WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
-        },
+        // correctNotePositions: () => {
+        //   console.log('​Before WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
+        //   this.noteStorage.map(ele => {
+        //     console.log( ele.position)
+        //     ele.position = (this.m.view.notes.adjust_position_multiple_args(ele.position))
+        //   })
+        //   console.log('​After WriteDragDrop -> this.noteStorage', this.noteStorage[0].position.x);
+        // },
         /**
          * Can take in object {x,y} or just coords x,y
          * @returns an object {x,y} with adjusted coords
-         * @BUGS_#0104pufnth When deleting empty note to create a new note, the height of the empty one also counts into cumHeight
+         * @BUGS - #0104pufnth: When deleting empty note to create a new note, the height of the empty one also counts into cumHeight
+         * - #0204dlakj92: In combination with autoscroll/draggable things get messy again.
          * @Tasks 1. Take child note coords and adjust according to note-container 
          * 2. Fixing unusual bug: When creating dyn notes, the custom components `dynamic-textarea` stack on each other, thus the position of every new dyn note gets pushed down according to the stack size.
          * @CONSIDER 
@@ -329,10 +357,8 @@ export class WriteDragDrop {
           }
           //@Task 2.: Only need to apply to y
           function fixStackingBug(yCoord) {
-            if(this.noteStorage.length === 0) {return coordsObj} // if no notes just return the input
-            console.log(this.noteStorage.last())
             // keep track of noteStorage 'stack' size
-            console.log(this.noteStorage.length)
+            if (this.noteStorage.length === 0) { return yCoord} // if no notes just return the input
             // get cumulative height of notes, need to cycle through every dyn note, since the height is dependent in real time on every previous dyn note
             let cumHeight = Array.from(document.getElementsByClassName('dynamic-textarea')).reduce(reduceToCumHeight,0)
               function reduceToCumHeight(acc,curVal) {
@@ -342,7 +368,7 @@ export class WriteDragDrop {
             return yCoord-cumHeight
           }
         },
-        ////////////////////////////// Playground //////////////////////////////
+        ////////////////////////////// ^ Playground //////////////////////////////
         /** Be able to quickly remove last note by double clicking
          * #CONSIDER#funtsht adding a safety net, to not remove important content by accident
          */
@@ -361,27 +387,28 @@ export class WriteDragDrop {
  /////////////////////////////////////////////////////////////////////////////////////////////
  /////////////////////////////////////////////////////////////////////////////////////////////
 
-_wdd_conMenu = {
-  selector: '#note-container',
-  items: {
-    correctNotePosition: {
-      name: 'Correct Note Position',
-      callback: () => this.m.view.notes.correctNotePositions()
-    },
-    draggableToggle: {
-      name: 'Draggable Toggle',
-      callback: () => this.m.view.draggable.makeDraggableToggle()
-    },
-    lengthOfNoteStorage: {
-      name: 'Length of note storage',
-      callback: () => this.lengthOfNoteStorage()
-    },
-    saveChanges: {
-      name: 'Save Changes',
-      callback: () => this.delegateToParent()
+  _wdd_conMenu = {
+    selector: '#note-container',
+    items: {
+      makeNoteContainerDraggable: {
+        name: "Make Note-Con draggable",
+        callback: () => this.m.view.draggable.makeNoteContainerDraggable()
+      },
+      sep1: "----------",
+      // correctNotePosition: {
+      //   name: 'Correct Note Position',
+      //   callback: () => this.m.view.notes.correctNotePositions()
+      // },
+      draggableToggleNotes: {
+        name: 'Draggable Toggle',
+        callback: () => this.m.view.draggable.makeDraggableToggle()
+      },
+      saveChanges: {
+        name: 'Save Changes',
+        callback: () => this.delegateToParent()
+      }
     }
   }
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +428,7 @@ _wdd_conMenu = {
   // test for dynly added html, want that to have aurelia power
   test() {
     let div = document.createElement("DIV")
-    div.innerHTML = '<span textcontent.bind="draggableToggle">Hello</span>'
+    div.innerHTML = '<span textcontent.bind="draggableToggleNotes">Hello</span>'
     document.getElementById("note-container").appendChild(div)
   }
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,7 +439,4 @@ _wdd_conMenu = {
  /////////////////////////////////////////////////////////////////////////////////////////////
  /////////////////////////////////////////////////////////////////////////////////////////////
 
-  lengthOfNoteStorage() {
-    console.log(this.noteStorage.last())
-  }
 }
