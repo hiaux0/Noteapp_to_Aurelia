@@ -21,7 +21,7 @@
                 <div repeat.for='topic of currentNotebook.topics'>
                   <div if.bind="topic._id">
                     <a route-href="route: topicsDetail; params.bind: {nbid:nbId, tid:topic._id}" dblclick.delegate="app.changeNoteName($event)" 
-                      click.delegate="m.utils.toggle_topic_clicked(true)">
+                      >
                       ${topic.title}
                     </a>
                   </div>

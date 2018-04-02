@@ -1,14 +1,14 @@
 <template>
-    <div 
+    <div
         class="dynamic-textarea draggable" 
         focus.bind = "hasfocus" 
-        css="position:relative; left: ${position.x}px; top: ${position.y}px;"
+        css="position:absolute; left: ${position.x}px; top: ${position.y}px;"
         contenteditable="true"
-        textcontent.two-way="content"
+        innerhtml.two-way="content"
 
         id.one-time="dyna_textarea_id"
         >
-		</div>
+    </div>
         
 </template>
 
