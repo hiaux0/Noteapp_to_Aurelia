@@ -180,14 +180,10 @@ export class WriteDragDrop {
           let id = movedEle.id
           let newPosition = {
             // x: movedEle.getBoundingClientRect().x - this.note_container_coords.x, // relative
-            x: movedEle.getBoundingClientRect().x, // absolute
+            x: movedEle.getBoundingClientRect().x - this.note_container_coords.x, // absolute
             // y: movedEle.getBoundingClientRect().y - this.note_container_coords.y // relative
-            y: movedEle.getBoundingClientRect().y // absolute
+            y: movedEle.getBoundingClientRect().y - this.note_container_coords.y // absolute
           }
-          ////////////////////////////// v Playground v //////////////////////////////
-          // let adjustPositionVar = this.m.view.notes.adjustPosition.call(this,newPosition)
-          
-          ////////////////////////////// ^ Playground ^ //////////////////////////////
           this.noteStorage.map(childNote => {
             // console.log('​Pos was WriteDragDrop -> childNote.position', childNote.position.x);
             if (childNote.id == id) { // check which one matches 
@@ -201,7 +197,7 @@ export class WriteDragDrop {
     view: {
       draggable: {
         /** Make all notes draggable.
-         * @CONSIDER Autoscroll only works if #note-container is scrollable, doesn't support "new" autoscroll, ie can't scroll in "unknown territory"
+         * @CONSIDER #0204_2893uroejf Autoscroll only works if #note-container is scrollable, doesn't support "new" autoscroll, ie can't scroll in "unknown territory"
          */
         makeDraggableToggle: () => {
           switch (this.draggableToggleNotes) {
@@ -211,15 +207,15 @@ export class WriteDragDrop {
                 Draggable.create(ele, {
                   autoScroll: 1,
                   // type: "x,y",
-                  // bounds: document.getElementById("note-container"),
+                  bounds: document.getElementById("note-container"),
                   onDragStart: () => {
                     /** #?!BUG: If there is a bug when dragging, ie. notes jump on the FIRST drag. See here.
                      * More exactly: in if(this.firstDrag) where the first drag case is checked, adjust via the `this.m.notes.getPreviousPosition(ele)` function
                      * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
                      * If not adjusted like below dyn area will jump around since you save new x and y's 
                      * but transform will ALWAYS be relative to ORIGINAL x and y
-                    //  */
-                    /** POSITION RELATIVE */
+                      //  */
+                      /** POSITION RELATIVE */
                       // if (this.firstDrag) {
                       //   console.log("First drag: ",this.firstDrag)
                       //   console.log(this.m.notes.getPreviousPosition(ele))
@@ -230,17 +226,19 @@ export class WriteDragDrop {
                       //   // // turn off firstDrag
                       //   this.firstDrag = false
                       // }
-                    /** POSITION ABSOLUTE */
-                      if (this.firstDrag) {
-                        console.log("First drag: ",this.firstDrag)
-                        console.log(this.m.notes.getPreviousPosition(ele))
-                        // x position
-                        this.m.notes.findInChildNoteStorage(ele).position.x = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].x * 1 // this.m.notes.getPreviousPosition(ele).x 
-                        // y position
-                        this.m.notes.findInChildNoteStorage(ele).position.y = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].y * 1 // this.m.notes.getPreviousPosition(ele).y
-                        // // turn off firstDrag
-                        this.firstDrag = false
-                      }
+                      /** POSITION ABSOLUTE */
+                      // if (this.firstDrag) {
+                      //   console.log("First drag: ",this.firstDrag)
+                      //   console.log(this.m.notes.getPreviousPosition(ele))
+                      //   // x position
+                      //   this.m.notes.findInChildNoteStorage(ele).position.x = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].x * 1 // this.m.notes.getPreviousPosition(ele).x 
+                      //   // y position
+                      //   this.m.notes.findInChildNoteStorage(ele).position.y = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].y * 1 // this.m.notes.getPreviousPosition(ele).y
+                      //   // // turn off firstDrag
+                      //   this.firstDrag = false
+                      // }
+                    //
+
                   },
                   onDragEnd: () => {
                     ele.classList.add('movedDueDrag')
@@ -273,12 +271,20 @@ export class WriteDragDrop {
               });
               this.draggableToggleNoteContainer = true;
               // 2.
-              this.draggableToggleNotes = true;
-              this.m.view.draggable.makeDraggableToggle()
+              // get all dyn notes
+              this.noteStorage.map(ele => {
+                ele.position.x //-= this.note_container_coords.x // #190832
+                ele.position.y //-= this.note_container_coords.y // 
+              })
+              
               break;
             case true:
               let D = Draggable.create("#note-container")
               D[0].disable();
+              this.noteStorage.map(ele => {
+                ele.position.x, //+= this.note_container_coords.x
+                ele.position.y //+= this.note_container_coords.y
+              })
               this.draggableToggleNoteContainer = false;
               break;
           }
@@ -317,22 +323,15 @@ export class WriteDragDrop {
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX, 
-                y: ev.pageY
+                x: ev.pageX - this.note_container_coords.x, 
+                y: ev.pageY- this.note_container_coords.y
               }, 
              
-              ////////////////////////////// v Playground v //////////////////////////////
-              // position: {
-              //   x: this.m.view.notes.adjustPosition_X.call(this, ev.pageX),
-              //   y: this.m.view.notes.adjustPosition_Y.call(this, ev.pageY)
-              // },
-              ////////////////////////////// ^ Playground ^ //////////////////////////////
-
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - this.note_container_coords.x,
+                y: ev.pageY- this.note_container_coords.y
               }], 
             }
             this.noteStorage.push(tempobj)
@@ -343,14 +342,14 @@ export class WriteDragDrop {
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX,ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - this.note_container_coords.x,
+                y: ev.pageY- this.note_container_coords.y
               }, 
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - this.note_container_coords.x,
+                y: ev.pageY- this.note_container_coords.y
               }], 
             }            
             this.noteStorage.push(tempobj)
