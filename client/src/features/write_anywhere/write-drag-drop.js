@@ -15,17 +15,21 @@
 
   import { bindable, inject } from 'aurelia-framework'
   import { Router } from 'aurelia-router'
+  import { TaskQueue } from 'aurelia-framework';
 
   import { ContextMenu, ContextMenuItemTypes } from 'jquery-contextmenu';
   import { DatabaseAPI } from '../../database-api';
+  import {ScrollExpansion} from './scroll_expansion/scroll-expansion'
   import connectArea from '../connect_areas/connect-areas'
   import Draggable from "gsap/Draggable";
   import helper from '../helper_lib'
   
-const _conMenu = new ContextMenu();
-let _idCounter = 0;
-let _latestId = 0;
-
+  const _conMenu = new ContextMenu();
+  let _idCounter = 0;
+  let _latestId = 0;
+  let note_container_global;
+  let note_container_rect;
+ 
 /** Deep diff between two object, using lodash
  * @param  {Object} object Object compared
  * @param  {Object} base   Object to compare with
@@ -45,13 +49,12 @@ let _latestId = 0;
   _.mixin({ 'deepDifference': deepDifference });
 
 //
-@inject(DatabaseAPI, Element, Router)
+@inject(DatabaseAPI, Element, Router, TaskQueue)
 export class WriteDragDrop {
   draggableToggleNotes = false
   draggableToggleNoteContainer = false
   firstDrag = true
-  note_container_coords
-  // currentTopic
+
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
   @bindable latestIdOfNotes
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,21 +62,30 @@ export class WriteDragDrop {
 //
 //     Component Initialization
 //^
- /////////////////////////////////////////////////////////////////////////////////////////////
- /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(dbAPI, element, router) {
+  constructor(dbAPI, element, router, tq) {
     this.dbAPI = dbAPI
     this.element = element
     this.noteStorage = [] // #INIT
     this.router = router
+    this.tq = tq
   }
 
   attached() {
-    this.m.http.getTopicFromNotebook()
+    this.m.http.getTopicFromNotebook() // get notebooks from database
     // add context menu
     _conMenu.create(this._wdd_conMenu)
-    this.note_container_coords = document.getElementById("note-container").getBoundingClientRect()
+    note_container_rect = document.getElementById("note-container").getBoundingClientRect()
+    note_container_global = document.getElementById("note-container")
+    this.noteCotainerScrollWidth = note_container_global.scrollWidth // #DELETE currently only for view
+    // ScrollExpansion //
+    ScrollExpansion.note_container_rect = document.getElementById("note-container").getBoundingClientRect()
+    ScrollExpansion.note_container_global = document.getElementById("note-container")
+    this.tq.queueTask(() => { 
+      this.m.view.draggable.makeDraggableToggle() // turn on draggable
+    })
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +101,7 @@ export class WriteDragDrop {
       // #FEATURE #0204_9erjfnk
       ////////////////////////////// v Playground v //////////////////////////////
       wordsAsDiv: () => {
-        console.log(this.noteStorage[0])
+        // console.log(this.noteStorage[0])
       }
       
       ////////////////////////////// ^ Playground ^ //////////////////////////////
@@ -116,7 +128,6 @@ export class WriteDragDrop {
         let storageEle = this.m.notes.findInChildNoteStorage(ele)
         // push new position to history
         storageEle.positionHistory.push(ele.style.transform)
-        console.log("pushed to history: ",storageEle.positionHistory.last())
       },
       /**
        * Takes in HTML element and
@@ -179,10 +190,10 @@ export class WriteDragDrop {
           console.log('​WriteDragDrop -> movedEle', movedEle.innerText);
           let id = movedEle.id
           let newPosition = {
-            // x: movedEle.getBoundingClientRect().x - this.note_container_coords.x, // relative
-            x: movedEle.getBoundingClientRect().x - this.note_container_coords.x, // absolute
-            // y: movedEle.getBoundingClientRect().y - this.note_container_coords.y // relative
-            y: movedEle.getBoundingClientRect().y - this.note_container_coords.y // absolute
+            // x: movedEle.getBoundingClientRect().x - note_container_rect.x, // relative
+            x: movedEle.getBoundingClientRect().x - note_container_rect.x,// absolute
+            // y: movedEle.getBoundingClientRect().y - note_container_rect.y // relative
+            y: movedEle.getBoundingClientRect().y - note_container_rect.y// absolute
           }
           this.noteStorage.map(childNote => {
             // console.log('​Pos was WriteDragDrop -> childNote.position', childNote.position.x);
@@ -195,6 +206,9 @@ export class WriteDragDrop {
       }
     },
     view: {
+      // getScroll: () => {
+
+      // },
       draggable: {
         /** Make all notes draggable.
          * @CONSIDER #0204_2893uroejf Autoscroll only works if #note-container is scrollable, doesn't support "new" autoscroll, ie can't scroll in "unknown territory"
@@ -204,11 +218,22 @@ export class WriteDragDrop {
             case false:
               Array.from($(".draggable")).map((ele) => {
                 ele.setAttribute("contenteditable", false)
-                Draggable.create(ele, {
+                
+                document.getElementById('note-container').addEventListener('scroll', (ev) => {
+                  let scrollLeft = (ev.target.scrollLeft)
+                  ScrollExpansion.noteContainerScrollLeft = scrollLeft
+                  ScrollExpansion.noteContainerScrollTop = ev.target.scrollTop
+                  
+                  // 1. autoscroll in that direction
+                  let newLeft = (ele.style.left).match(/-?\d+\.\d+/g)
+                  // ele.style.left = `${Number(newLeft[0]) + scrollLeft}px`
+                  
+                })
+
+                let D = Draggable.create(ele, {
                   autoScroll: 1,
-                  // type: "x,y",
-                  bounds: document.getElementById("note-container"),
-                  onDragStart: () => {
+                  // bounds: document.getElementById("note-container"),
+                  onDragStart: (ev) => {
                     /** #?!BUG: If there is a bug when dragging, ie. notes jump on the FIRST drag. See here.
                      * More exactly: in if(this.firstDrag) where the first drag case is checked, adjust via the `this.m.notes.getPreviousPosition(ele)` function
                      * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
@@ -237,8 +262,22 @@ export class WriteDragDrop {
                       //   // // turn off firstDrag
                       //   this.firstDrag = false
                       // }
-                    //
-
+                  //
+                    // prepare Expansion
+                    let beforeLeft = document.getElementById(`${ev.target.id || ev.target.parentElement.id}`).style.left
+                    this.left = Number(beforeLeft.match(/-?\d+\.\d+/g)[0])
+                    let beforeTop = document.getElementById(`${ev.target.id || ev.target.parentElement.id}`).style.top
+                    this.top = Number(beforeLeft.match(/-?\d+\.\d+/g)[0])
+                    // console.log('​WriteDragDrop -> left', this.left);
+                  },
+                  onDrag:(ev) => {
+                    // this.m.view.notes.scrollExpansion_Right.call(this, ev, ele)   // Expand!
+                    // this.m.view.notes.autoScrollOnDrag_Right.call(this,ev,D)      // Auto scroll while dragging
+                    ScrollExpansion.expansion.scrollExpansion_Right(ev,ele)
+                    ScrollExpansion.autoScroll.autoScrollOnDrag_Right(ev,D,this.left)
+                    // ScrollExpansion.expansion.bottom(ev, ele)
+                    // ScrollExpansion.autoScroll.bottom(ev, D, this.top)
+                    
                   },
                   onDragEnd: () => {
                     ele.classList.add('movedDueDrag')
@@ -266,15 +305,15 @@ export class WriteDragDrop {
             case false:
               Draggable.create("#note-container", {
                 type: "scroll",
-                edgeResistance: 0.5,
+                edgeResistance: 0.95,
                 throwProps: true
               });
               this.draggableToggleNoteContainer = true;
               // 2.
               // get all dyn notes
               this.noteStorage.map(ele => {
-                ele.position.x //-= this.note_container_coords.x // #190832
-                ele.position.y //-= this.note_container_coords.y // 
+                ele.position.x //-= note_container_rect.x // #190832
+                ele.position.y //-= note_container_rect.y // 
               })
               
               break;
@@ -282,8 +321,8 @@ export class WriteDragDrop {
               let D = Draggable.create("#note-container")
               D[0].disable();
               this.noteStorage.map(ele => {
-                ele.position.x, //+= this.note_container_coords.x
-                ele.position.y //+= this.note_container_coords.y
+                ele.position.x, //+= note_container_rect.x
+                ele.position.y //+= note_container_rect.y
               })
               this.draggableToggleNoteContainer = false;
               break;
@@ -304,6 +343,43 @@ export class WriteDragDrop {
           */
          // !note !dyn-note
         addDynamicChildNote: (ev) => {
+// Playground
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  //////////////////////////////////////// v Playground v //////////////////////////////
+  console.log(ev.target.scrollTop)
+  //////////////////////////////////////// ^ Playground ^ //////////////////////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+//
           // If target is not in valid area, ie not in note-container AND not dyn-textarea return with no action
           let notNoteContainer = ev.target.id === "note-container" ? false : true
           let notDynTextarea = ev.target.tagName === "DYNAMIC-TEXTAREA" ? false : true
@@ -318,20 +394,26 @@ export class WriteDragDrop {
               this.noteStorage.pop()
               --_idCounter // if empty dyn area gets deleted adjust idCounter
             }
+
+            // Miteinbeziehen von scrollWidth //#DELETE
+            // const scrollWidth = document.getElementById("note-container").scrollWidth
+            // const delta_sW = scrollWidth - note_container_rect.width 
+            // console.log('​WriteDragDrop -> delta_sW', delta_sW);
+
             let tempobj = {
               id: _idCounter,
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX - this.note_container_coords.x, 
-                y: ev.pageY- this.note_container_coords.y
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }, 
              
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX - this.note_container_coords.x,
-                y: ev.pageY- this.note_container_coords.y
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }], 
             }
             this.noteStorage.push(tempobj)
@@ -342,14 +424,14 @@ export class WriteDragDrop {
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX,ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX - this.note_container_coords.x,
-                y: ev.pageY- this.note_container_coords.y
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }, 
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX - this.note_container_coords.x,
-                y: ev.pageY- this.note_container_coords.y
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }], 
             }            
             this.noteStorage.push(tempobj)
@@ -384,9 +466,9 @@ export class WriteDragDrop {
           }
           //@Task 1.
           function adjustCoordinates(x,y) {
-            let adjust_y = y - this.note_container_coords.y
+            let adjust_y = y - note_container_rect.y
             return {
-              x: x - this.note_container_coords.x,
+              x: x - note_container_rect.x,
               y: fixStackingBug.call(this, adjust_y),
 
             }
@@ -410,7 +492,7 @@ export class WriteDragDrop {
           if(this.noteStorage.last().content === "") {
             this.noteStorage.pop()
           } 
-        }
+        },
       },
     }
   }
@@ -419,13 +501,16 @@ export class WriteDragDrop {
 //
 //    Method Context Menu
 //^
- /////////////////////////////////////////////////////////////////////////////////////////////
- /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   _wdd_conMenu = {
     selector: '#note-container',
     items: {
-     
+    //  getScroll: {
+    //   name: "Get scroll",
+    //   callback: () => this.m.view.getScroll()
+    //  },
       wordsAsDiv: {
         name: "Words as Div",
         className: "btn btn-outline-success",
@@ -481,5 +566,39 @@ export class WriteDragDrop {
  //^
  /////////////////////////////////////////////////////////////////////////////////////////////
  /////////////////////////////////////////////////////////////////////////////////////////////
+  conlog() {
+    // note_container_global.scrollLeft += 100
+    // console.log("container scroll left",
+    //   note_container_global.scrollLeft
+    // )
+    // Compare width to scrollWidth
+    console.log(
+      'scrollLeft: ',
+      note_container_global.scrollLeft,
+      'scrollWidth: ',
+      note_container_global.scrollWidth,
+    )
+    console.log(
+      'Left coord of #note-container',
+      this.currentNoteContainerCoords().x["left"],
+      'Right coord of #note-container',
+      this.currentNoteContainerCoords().x["right"]
 
+    )
+  }
+  /** Since note_container_* is global, you shoul always get the latest coords
+   * @returns current coordinates of #note-container
+    */
+  currentNoteContainerCoords() {
+    return {
+      x: {
+        "left": note_container_rect.x + note_container_global.scrollLeft,
+        "right": note_container_rect.x + note_container_global.scrollLeft + note_container_rect.width,
+      },
+      y: {
+        "left": note_container_rect.y + note_container_global.scrollTop,
+        "right": note_container_rect.y + note_container_global.scrollTop + note_container_rect.height,
+      }
+    }
+  }
 }

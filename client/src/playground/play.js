@@ -19,9 +19,7 @@ export class Play {
   }
 
   /**
-   * Activate Popper using the jQuery method
-   * 
-   * 
+   * Activate Popper (from Bootstrap) using the jQuery method
    * @memberOf Play
    */
   activatePopover(ev,num) {
@@ -147,7 +145,6 @@ export class Play {
       }
     })
   }
-  test() { 
-    console.log }
+  test() { console.log }
 
 }

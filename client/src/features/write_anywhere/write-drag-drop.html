@@ -5,28 +5,30 @@
         <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
-        Draggable is ${draggableToggleNotes?'on':'off'}
-    </button>
     <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeNoteContainerDraggableToggle()">
         Note Container Draggable is ${draggableToggleNoteContainer?'on':'off'}
     </button>
     <button class="btn btn-outline-success" click.delegate="m.dataSharing.wordsAsDiv()">Words as Div </button>
-    
-    <div 
-        id="note-container" 
-        dblclick.trigger="m.view.notes.removeLast()" 
-        click.delegate="m.view.notes.addDynamicChildNote($event)"
-        class="dropable write-anywhere" >
-        <!-- <connect-areas></connect-areas> 2018-03-27 17:21:12 #TODO uncomment after notbooks routes are finished--> 
-        <dynamic-textarea 
-            repeat.for="note of noteStorage" 
-            content.two-way="note.content"
-            position.two-way="note.position"
-            hasfocus.bind="true"  
-            dyna_textarea_id.bind="note.id"
-            style="overflow:scroll;"
-        ></dynamic-textarea>
-    </div>
+    <button class="btn btn-outline-success" click.delegate="conlog()">Log Info </button>
+    <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
+        Draggable is ${draggableToggleNotes?'on':'off'}
+    </button>
+    Width: ${noteCotainerScrollWidth} Left ${noteContainerScrollLeft}
+        <div 
+            id="note-container" 
+            dblclick.trigger="m.view.notes.removeLast()" 
+            click.delegate="m.view.notes.addDynamicChildNote($event)"
+            class="dropable write-anywhere" 
+             style="position:relative;">
+            <!-- <connect-areas></connect-areas> 2018-03-27 17:21:12 #TODO uncomment after notbooks routes are finished--> 
+            <dynamic-textarea 
+                repeat.for="note of noteStorage" 
+                content.two-way="note.content"
+                position.two-way="note.position"
+                hasfocus.bind="true"  
+                dyna_textarea_id.bind="note.id"
+                style="overflow:scroll;"
+            ></dynamic-textarea>
+        </div>
 
 </template>
