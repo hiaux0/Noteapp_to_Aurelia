@@ -5,15 +5,20 @@
         <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeNoteContainerDraggableToggle()">
+    <!-- <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeNoteContainerDraggableToggle()">
         Note Container Draggable is ${draggableToggleNoteContainer?'on':'off'}
-    </button>
-    <button class="btn btn-outline-success" click.delegate="m.dataSharing.wordsAsDiv()">Words as Div </button>
-    <button class="btn btn-outline-success" click.delegate="conlog()">Log Info </button>
+    </button> -->
     <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
         Draggable is ${draggableToggleNotes?'on':'off'}
     </button>
-    Width: ${noteCotainerScrollWidth} Left ${noteContainerScrollLeft}
+    <!-- <button class="btn btn-outline-success" click.delegate="m.dataSharing.wordsAsDiv()">Words as Div </button> -->
+    <button 
+        class="btn btn-outline-success" 
+        click.delegate="conlog()"
+        style="width:50vw;">
+        Log Info </button>
+
+    <!-- Width: ${noteCotainerScrollWidth} Left ${noteContainerScrollLeft} -->
         <div 
             id="note-container" 
             dblclick.trigger="m.view.notes.removeLast()" 

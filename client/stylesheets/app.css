@@ -47,7 +47,7 @@ input {
   outline: none;
   /* border */
     border: 1px dotted gray;
-    border-top: 4px solid black;
+    /* border-top: 4px solid black; */
   /* resize able */
     resize: both;
     overflow: auto;

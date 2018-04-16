@@ -43,6 +43,7 @@ export const ScrollExpansion = {
       /**
          * @BUGS
          * 1. #0304_rutn48: when mouse moves outside of container, breaks
+         * @param eleLeft left of ele before drag
          */
       autoScrollOnDrag_Right: function(ev, D, eleLeft) {
         const offsetX = ("offsetX: ", D[0].pointerEvent.offsetX)     //  Monitor Draggable
@@ -52,7 +53,7 @@ export const ScrollExpansion = {
           // update left of target with scrollLeft
           if (ev.target.style.left && ScrollExpansion.noteContainerScrollLeft) {
             // set new left
-            let newLeft = eleLeft + ScrollExpansion.noteContainerScrollLeft * 0.67
+            let newLeft = eleLeft + ScrollExpansion.noteContainerScrollLeft * (2 / 3)
             ev.target.style.left = `${newLeft}px`
           }
           // 1. autoscroll in that direction
@@ -71,7 +72,7 @@ export const ScrollExpansion = {
           // update top of target with scrollLeft
           if (ev.target.style.top && ScrollExpansion.noteContainerScrollTop) {
             // set new top
-            let newTop = eleTop + ScrollExpansion.noteContainerScrollTop * 0.65
+            let newTop = eleTop + ScrollExpansion.noteContainerScrollTop * (2/3)
             ev.target.style.top = `${newTop}px`
           }
           // 1. autoscroll in that direction
@@ -122,7 +123,6 @@ export const ScrollExpansion = {
               SPAN.style.top = `${SPANPosY + 100 + expandValue}px`
               // 3. append to #note-conatainer  
               ScrollExpansion.note_container_global.appendChild(SPAN)
-              console.log('expansion appended')
             }
         }
       },
@@ -208,4 +208,14 @@ export const ScrollExpansion = {
  //^
   /////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////
-  
+
+/**
+ * Position of elements in #note-container
+ *  - left upper is (0,0)
+ * 
+ * Relative x,y coords in #note-container
+ * {
+ *  x: ele.layerX + note_container_global.scrollLeft,
+ *  y: ele.layerY + note_container_global.scrollTop
+ * }
+ */
