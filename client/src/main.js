@@ -2,13 +2,17 @@ import environment from './environment';
 import 'jquery'
 import 'bootstrap'
 import 'lodash'
-import '../src/features/mylodash'
+// import '../src/features/helper_lib'
 
 export function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
     .feature('resources')
     .globalResources(
+      // make views global
+    )
+    .plugin(
+      // '../src/features/helper_lib.js'
     );
 
   if (environment.debug) {

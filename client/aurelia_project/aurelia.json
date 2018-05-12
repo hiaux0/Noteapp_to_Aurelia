@@ -90,7 +90,7 @@
           {
             "name": "bootstrap",
             "path": "../node_modules/bootstrap/dist",
-            "main": "js/bootstrap.bundle.min",
+            "main": "js/bootstrap.bundle.min.js",
             "deps": [
               "jquery"
             ],
@@ -103,15 +103,6 @@
             "name": "lodash",
             "path": "../node_modules/lodash",
             "main": "lodash.min"
-          },
-          {
-            "name": "gsap",
-            "path": "../node_modules/gsap",
-            "main": "src/minified/TweenLite.min",
-            "resources": [
-              "Draggable.js",
-              "TweenLite.js"
-            ]
           },
           {
             "name": "jquery-contextmenu",

@@ -1,24 +1,50 @@
-import { bindable,inject} from 'aurelia-framework'
+/** README
+ * What? Uses position relative to be anywhere createable.
+ * 
+ * Data comes from write-drag-drop component which also displays this component.
+ * - Data in: position, dyna_textarea_id, and content
+ */
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    Imports
+ //^
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	import { bindable,inject} from 'aurelia-framework'
 
-// import drag_drop from '../../drag_drop/au-drag-drop'
-import {WriteDragDrop} from '../write-drag-drop'
-
-let data, id, startLocation, targetLocation;
-
-@inject(Element, WriteDragDrop)
+	// import {DragDrop} from '../drag-drop'
+	
+@inject(Element)
 export class DynamicTextarea {
-    id;
-    @bindable content
-    @bindable position
-    @bindable hasfocus
-    @bindable dyna_textarea_id
-    constructor(element, writedragdrop) {
-        this.wdd = writedragdrop
-        this.element = element
-    }
+	id;
+	// From and for write-drag-drop
+	@bindable content
+	@bindable position
+	@bindable hasfocus
+	@bindable dyna_textarea_id
+	constructor(element) {
+		this.element = element
+	}
 
-    created() {
-        this.id = this.element.children[0].id
-    }
+	created() {
+			this.id = this.element.children[0].id
+	}
 
+	attached() {
+	}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//
+//    Methods
+ //^
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	m = {
+		view: {
+			notes: {
+			}
+		}
+	}
 }

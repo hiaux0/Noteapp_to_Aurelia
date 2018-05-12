@@ -34,8 +34,8 @@ module.exports = function (app) {
     .get(noteApp.notebooks.topics.idRoute.find_a_topic_from_notebook)
     .patch(noteApp.notebooks.topics.idRoute.patch_a_topic_from_notebook) // #ADJUST #NOTEBOOKSROUTER
     // .put(noteApp.notebooks.topics.idRoute.NEW_update_a_topic_from_notebook) // #280301
-    .put(noteApp.notebooks.topics.idRoute.put_topic_from_notebook_v1)
-    .delete(noteApp.notebooks.idRoute.delete_a_notebook) //#ADJUST #NOTEBOOKSROUTER
+    .put(noteApp.notebooks.topics.idRoute.put_topic_from_notebook)
+    .delete(noteApp.notebooks.topics.idRoute.delete_a_topic) //#ADJUST #NOTEBOOKSROUTER
 
   // Notebooks/Topics/Notes
   app.route('/notebooks/:nbid/topics/:tid/notes')

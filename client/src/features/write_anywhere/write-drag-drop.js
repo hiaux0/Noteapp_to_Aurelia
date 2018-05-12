@@ -15,17 +15,20 @@
 
   import { bindable, inject } from 'aurelia-framework'
   import { Router } from 'aurelia-router'
+  import { TaskQueue } from 'aurelia-framework';
 
-  import { ContextMenu, ContextMenuItemTypes } from 'jquery-contextmenu';
+  import { ContextMenu } from 'jquery-contextmenu';
   import { DatabaseAPI } from '../../database-api';
-  import connectArea from '../connect_areas/connect-areas'
-  import Draggable from "gsap/Draggable";
-  import helper from '../helper_lib'
+  import {ScrollExpansion} from './scroll_expansion/scroll-expansion'
+  // import connectArea from '../connect_areas/connect-areas'
+  import {helper, test} from '../helper_lib'
   
-const _conMenu = new ContextMenu();
-let _idCounter = 0;
-let _latestId = 0;
-
+  const _conMenu = new ContextMenu();
+  let _idCounter = 0;
+  let _latestId = 0;
+  let note_container_global;
+  let note_container_rect;
+ 
 /** Deep diff between two object, using lodash
  * @param  {Object} object Object compared
  * @param  {Object} base   Object to compare with
@@ -45,13 +48,12 @@ let _latestId = 0;
   _.mixin({ 'deepDifference': deepDifference });
 
 //
-@inject(DatabaseAPI, Element, Router)
+@inject(DatabaseAPI, Element, Router, TaskQueue)
 export class WriteDragDrop {
   draggableToggleNotes = false
   draggableToggleNoteContainer = false
   firstDrag = true
-  note_container_coords
-  // currentTopic
+
   @bindable ctpWddTopics // child to parent (child = wdd, parent = testdetail)
   @bindable latestIdOfNotes
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,21 +61,26 @@ export class WriteDragDrop {
 //
 //     Component Initialization
 //^
- /////////////////////////////////////////////////////////////////////////////////////////////
- /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
-  constructor(dbAPI, element, router) {
+  constructor(dbAPI, element, router, tq) {
     this.dbAPI = dbAPI
     this.element = element
     this.noteStorage = [] // #INIT
     this.router = router
+    this.tq = tq
   }
 
   attached() {
-    this.m.http.getTopicFromNotebook()
+    this.m.http.getTopicFromNotebook() // get notebooks from database
     // add context menu
     _conMenu.create(this._wdd_conMenu)
-    this.note_container_coords = document.getElementById("note-container").getBoundingClientRect()
+    note_container_rect = document.getElementById("note-container").getBoundingClientRect()
+    note_container_global = document.getElementById("note-container")
+    // ScrollExpansion //
+    ScrollExpansion.note_container_rect = document.getElementById("note-container").getBoundingClientRect()
+    ScrollExpansion.note_container_global = document.getElementById("note-container")
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,15 +92,6 @@ export class WriteDragDrop {
  /////////////////////////////////////////////////////////////////////////////////////////////
 
 	m = {
-    dataSharing: {
-      // #FEATURE #0204_9erjfnk
-      ////////////////////////////// v Playground v //////////////////////////////
-      wordsAsDiv: () => {
-        console.log(this.noteStorage[0])
-      }
-      
-      ////////////////////////////// ^ Playground ^ //////////////////////////////
-    },
     http: {
       getTopicFromNotebook: () => { //#INIT
         let nbId = this.router.currentInstruction.params.nbid
@@ -116,7 +114,6 @@ export class WriteDragDrop {
         let storageEle = this.m.notes.findInChildNoteStorage(ele)
         // push new position to history
         storageEle.positionHistory.push(ele.style.transform)
-        console.log("pushed to history: ",storageEle.positionHistory.last())
       },
       /**
        * Takes in HTML element and
@@ -138,17 +135,12 @@ export class WriteDragDrop {
        */
       getPreviousPosition: (ele) => {
         // prepare variables
-        // console.log('------------------------------')
         // console.log("Beging first adjust")
         let storageElement = this.m.notes.findInChildNoteStorage(ele)
         let prevPos = storageElement.positionHistory
-        let originalPos = prevPos[0] // #DEPRECATED
-        // console.log('​WriteDragDrop -> originalPos', originalPos);
         let latestPos_isString = prevPos.slice(-1)[0]
-        // console.log('​WriteDragDrop -> latestPos_isString', latestPos_isString);
 
         if (prevPos.length > 1) {
-          // console.log("prevPos.length > 1")
           // transform latestPos (which is a string "translate3d") using regex
           let regex = /(-?\d+(\.\d*)?)/g // matches 3 in "3d" aswell (still learning regex)
           let latestPos_isArr = latestPos_isString.match(regex)
@@ -156,11 +148,9 @@ export class WriteDragDrop {
             x: latestPos_isArr[1],
             y: latestPos_isArr[2]
           }
-          // console.log('​WriteDragDrop -> latestPos_xy', latestPos_xy);
           return (latestPos_xy)
         }
         else {
-          // console.log("prevPos.length <= 1")
           return {
             x: 0,
             y: 0
@@ -179,17 +169,12 @@ export class WriteDragDrop {
           console.log('​WriteDragDrop -> movedEle', movedEle.innerText);
           let id = movedEle.id
           let newPosition = {
-            // x: movedEle.getBoundingClientRect().x - this.note_container_coords.x, // relative
-            x: movedEle.getBoundingClientRect().x, // absolute
-            // y: movedEle.getBoundingClientRect().y - this.note_container_coords.y // relative
-            y: movedEle.getBoundingClientRect().y // absolute
+            // x: movedEle.getBoundingClientRect().x - note_container_rect.x, // relative
+            x: movedEle.getBoundingClientRect().x - note_container_rect.x,// absolute
+            // y: movedEle.getBoundingClientRect().y - note_container_rect.y // relative
+            y: movedEle.getBoundingClientRect().y - note_container_rect.y// absolute
           }
-          ////////////////////////////// v Playground v //////////////////////////////
-          // let adjustPositionVar = this.m.view.notes.adjustPosition.call(this,newPosition)
-          
-          ////////////////////////////// ^ Playground ^ //////////////////////////////
           this.noteStorage.map(childNote => {
-            // console.log('​Pos was WriteDragDrop -> childNote.position', childNote.position.x);
             if (childNote.id == id) { // check which one matches 
               childNote.position = newPosition
               movedEle.style.transform = '' //resets transform of Draggable
@@ -199,91 +184,6 @@ export class WriteDragDrop {
       }
     },
     view: {
-      draggable: {
-        /** Make all notes draggable.
-         * @CONSIDER Autoscroll only works if #note-container is scrollable, doesn't support "new" autoscroll, ie can't scroll in "unknown territory"
-         */
-        makeDraggableToggle: () => {
-          switch (this.draggableToggleNotes) {
-            case false:
-              Array.from($(".draggable")).map((ele) => {
-                ele.setAttribute("contenteditable", false)
-                Draggable.create(ele, {
-                  autoScroll: 1,
-                  // type: "x,y",
-                  // bounds: document.getElementById("note-container"),
-                  onDragStart: () => {
-                    /** #?!BUG: If there is a bug when dragging, ie. notes jump on the FIRST drag. See here.
-                     * More exactly: in if(this.firstDrag) where the first drag case is checked, adjust via the `this.m.notes.getPreviousPosition(ele)` function
-                     * First drag needs extra care due to Draggable behaviour, ie. transform3d(x,y,z ) 
-                     * If not adjusted like below dyn area will jump around since you save new x and y's 
-                     * but transform will ALWAYS be relative to ORIGINAL x and y
-                    //  */
-                    /** POSITION RELATIVE */
-                      // if (this.firstDrag) {
-                      //   console.log("First drag: ",this.firstDrag)
-                      //   console.log(this.m.notes.getPreviousPosition(ele))
-                      //   // x position
-                      //   this.m.notes.findInChildNoteStorage(ele).position.x = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].x * 1 - this.m.notes.getPreviousPosition(ele).x 
-                      //   // y position
-                      //   this.m.notes.findInChildNoteStorage(ele).position.y = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].y * 1 - this.m.notes.getPreviousPosition(ele).y
-                      //   // // turn off firstDrag
-                      //   this.firstDrag = false
-                      // }
-                    /** POSITION ABSOLUTE */
-                      if (this.firstDrag) {
-                        console.log("First drag: ",this.firstDrag)
-                        console.log(this.m.notes.getPreviousPosition(ele))
-                        // x position
-                        this.m.notes.findInChildNoteStorage(ele).position.x = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].x * 1 // this.m.notes.getPreviousPosition(ele).x 
-                        // y position
-                        this.m.notes.findInChildNoteStorage(ele).position.y = this.m.notes.findInChildNoteStorage(ele).positionHistory[0].y * 1 // this.m.notes.getPreviousPosition(ele).y
-                        // // turn off firstDrag
-                        this.firstDrag = false
-                      }
-                  },
-                  onDragEnd: () => {
-                    ele.classList.add('movedDueDrag')
-                    this.m.notes.addToPositionHistory(ele)
-                  }
-                });
-              });
-              this.draggableToggleNotes = true;
-              break;
-            case true:
-              Array.from($(".draggable")).map((ele) => {
-                let D = Draggable.create(ele)
-                D[0].disable();
-                ele.setAttribute("contenteditable", true)
-              });
-              this.draggableToggleNotes = false;
-              break;
-          }
-        },
-        /** 1. Make the whole #note-container draggable.
-         * 2. Also turn off notes draggable to prevents drag bugs
-         */
-        makeNoteContainerDraggableToggle: () => {
-          switch (this.draggableToggleNoteContainer) {
-            case false:
-              Draggable.create("#note-container", {
-                type: "scroll",
-                edgeResistance: 0.5,
-                throwProps: true
-              });
-              this.draggableToggleNoteContainer = true;
-              // 2.
-              this.draggableToggleNotes = true;
-              this.m.view.draggable.makeDraggableToggle()
-              break;
-            case true:
-              let D = Draggable.create("#note-container")
-              D[0].disable();
-              this.draggableToggleNoteContainer = false;
-              break;
-          }
-        },
-      },
       notes: {
         /** Add textarea at mouse position
           * 
@@ -298,6 +198,44 @@ export class WriteDragDrop {
           */
          // !note !dyn-note
         addDynamicChildNote: (ev) => {
+// Playground
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  //////////////////////////////////////// v Playground v //////////////////////////////
+          console.log('​WriteDragDrop -> ev', ev);
+          console.log("Cur Mouse Pos: ",ev.layerX + note_container_global.scrollLeft)
+  //////////////////////////////////////// ^ Playground ^ //////////////////////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  ////////////                                                              ////////////
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+//
           // If target is not in valid area, ie not in note-container AND not dyn-textarea return with no action
           let notNoteContainer = ev.target.id === "note-container" ? false : true
           let notDynTextarea = ev.target.tagName === "DYNAMIC-TEXTAREA" ? false : true
@@ -312,27 +250,21 @@ export class WriteDragDrop {
               this.noteStorage.pop()
               --_idCounter // if empty dyn area gets deleted adjust idCounter
             }
+
             let tempobj = {
               id: _idCounter,
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX, 
-                y: ev.pageY
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }, 
              
-              ////////////////////////////// v Playground v //////////////////////////////
-              // position: {
-              //   x: this.m.view.notes.adjustPosition_X.call(this, ev.pageX),
-              //   y: this.m.view.notes.adjustPosition_Y.call(this, ev.pageY)
-              // },
-              ////////////////////////////// ^ Playground ^ //////////////////////////////
-
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }], 
             }
             this.noteStorage.push(tempobj)
@@ -343,14 +275,14 @@ export class WriteDragDrop {
               content: "",
               // position: this.m.view.notes.adjustPosition.call(this,ev.pageX,ev.pageY), //relative
               position: { //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }, 
               // position history in format of Draggable
               // positionHistory: [this.m.view.notes.adjustPosition.call(this,ev.pageX, ev.pageY)] //relative
               positionHistory: [{ //absolute
-                x: ev.pageX,
-                y: ev.pageY
+                x: ev.pageX - note_container_rect.x + note_container_global.scrollLeft, 
+                y: ev.pageY - note_container_rect.y + note_container_global.scrollTop 
               }], 
             }            
             this.noteStorage.push(tempobj)
@@ -385,9 +317,9 @@ export class WriteDragDrop {
           }
           //@Task 1.
           function adjustCoordinates(x,y) {
-            let adjust_y = y - this.note_container_coords.y
+            let adjust_y = y - note_container_rect.y
             return {
-              x: x - this.note_container_coords.x,
+              x: x - note_container_rect.x,
               y: fixStackingBug.call(this, adjust_y),
 
             }
@@ -411,7 +343,7 @@ export class WriteDragDrop {
           if(this.noteStorage.last().content === "") {
             this.noteStorage.pop()
           } 
-        }
+        },
       },
     }
   }
@@ -420,23 +352,18 @@ export class WriteDragDrop {
 //
 //    Method Context Menu
 //^
- /////////////////////////////////////////////////////////////////////////////////////////////
- /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   _wdd_conMenu = {
     selector: '#note-container',
     items: {
-     
       wordsAsDiv: {
         name: "Words as Div",
         className: "btn btn-outline-success",
         callback: () => this.m.dataSharing.wordsAsDiv()
       },
       sep1: "----------",
-      // correctNotePosition: {
-      //   name: 'Correct Note Position',
-      //   callback: () => this.m.view.notes.correctNotePositions()
-      // },
       draggableToggleNotes: {
         name: 'Draggable Toggle',
         callback: () => this.m.view.draggable.makeDraggableToggle()
@@ -482,5 +409,30 @@ export class WriteDragDrop {
  //^
  /////////////////////////////////////////////////////////////////////////////////////////////
  /////////////////////////////////////////////////////////////////////////////////////////////
-
+  conlog() {
+            // Compare width to scrollWidth
+    // Ele relative position in #note-container
+    let three = document.getElementById("3").getBoundingClientRect().x - note_container_rect.x + note_container_global.scrollLeft 
+    console.log('​WriteDragDrop -> conlog -> three', three);
+  }
+  /** Since note_container_* is global, you shoul always get the latest coords
+   * @returns current coordinates of #note-container
+    */
+  currentNoteContainerCoords() {
+    return {
+      x: {
+        "left": note_container_rect.x + note_container_global.scrollLeft,
+        "right": note_container_rect.x + note_container_global.scrollLeft + note_container_rect.width,
+      },
+      y: {
+        "left": note_container_rect.y + note_container_global.scrollTop,
+        "right": note_container_rect.y + note_container_global.scrollTop + note_container_rect.height,
+      }
+    }
+  }
+  rel_pos(ele) {
+    return {
+      x: ele.getBoundingClientRect().x 
+    }
+  }
 }

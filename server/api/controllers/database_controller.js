@@ -80,7 +80,7 @@ let notebooks = {
             res.json(topic)
           }
         })
-      },
+       },
       
       /** 
        * Patch ONE field in notebook schema
@@ -96,11 +96,10 @@ let notebooks = {
             targetTopic[targetKey] = req.body[targetKey] // update 
             return nb.save() // save, and mongoose automatically validates
           })
-          .then(nb => res.send({nb})) // return the updated nb
+          .then(nb => res.send({ nb })) // return the updated nb // make sure to send an object!!
           .catch(e => res.status(400).send(e)) // error handling
-
-      },
-      put_topic_from_notebook_v1: function (req, res) {
+       },
+      put_topic_from_notebook: function (req, res) {
         let nb_id = req.params.nbid
         let t_id = req.params.tid
         Notebook.findById(nb_id, function(err, notebook) {
@@ -126,18 +125,19 @@ let notebooks = {
           }
         })
       },
-      // Patch Content
-      patch_a_topic: function (req, res) {
-        Notebook.findOneAndUpdate({ _id: req.params.tid }, { $set: { content: req.body } }, function (err, output) {
-          if (err) res.send(err);
-          res.json(output)
-        })
-      },
-      delete_a_topic: function (req, res) { //#TODO find out how to delete child doc in mongoose
-        Notebook.remove({ _id: req.params.tid }, function (err, output) {
-          if (err) res.send(err);
-          res.json({ message: 'Succesfully deleted' })
-        })
+   
+      delete_a_topic: function (req, res) { //#TODO3103fsi09u find out how to delete child doc in mongoose
+        let nb_id = req.params.nbid
+        let t_id  = req.params.tid
+        Notebook.findById(req.params.nbid)          // Find nb and return promise
+          .then( nb => {                            // If nb found then
+            let target_topic = nb.topics.id(t_id) 
+            console.log(target_topic)  // find target topic via id() method
+            target_topic.remove()  //#TODO delete the topic
+            return nb.save()                        // save changes
+          })
+          .then(nb => res.send({nb}))               // make sure to send an object!!
+          .catch(e => res.status(400).send(e))
       }
     },
     mainRoute: {
