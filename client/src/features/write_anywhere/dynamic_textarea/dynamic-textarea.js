@@ -13,7 +13,7 @@
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	import { bindable,inject} from 'aurelia-framework'
 
-	import {DragDrop} from '../drag-drop'
+	// import {DragDrop} from '../drag-drop'
 	
 @inject(Element)
 export class DynamicTextarea {
@@ -32,10 +32,6 @@ export class DynamicTextarea {
 	}
 
 	attached() {
-		console.log("in dyn ta")
-		DragDrop.nc_rect = document.getElementById("note-container").getBoundingClientRect()
-		DragDrop.nc_global = document.getElementById("note-container")
-		// DragDrop.m.view.listenToExpansion()
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,9 +44,6 @@ export class DynamicTextarea {
 	m = {
 		view: {
 			notes: {
-				initDrag: () => {
-					DragDrop.m.initDrag(this.element)
-				}
 			}
 		}
 	}

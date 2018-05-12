@@ -119,8 +119,8 @@ export class App {
       {route: ['', 'home'],name: 'home',      moduleId: './views/home', nav: true, title: "Home" },
       {route: 'notebooks' ,name: 'notebooks', moduleId: './routes/notebooks-router', nav: true, title: 'Notebooks'},
       {route: 'playground',name: 'playground',moduleId: './playground/play', nav: true, title: 'Playground' },
-      {route: 'threelines',name: 'threelines',moduleId: './features/gsap/connect-with-line', nav: true,
-        title: '3 Lines'},
+      // {route: 'threelines',name: 'threelines',moduleId: './features/gsap/connect-with-line', nav: true,
+        // title: '3 Lines'},
       {route: 'cm',        name: 'cm',        moduleId: './playground/latest/cm', nav: true, title: "Context Menu"}
     ]);
     this.router = router;

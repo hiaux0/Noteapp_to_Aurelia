@@ -105,15 +105,6 @@
             "main": "lodash.min"
           },
           {
-            "name": "gsap",
-            "path": "../node_modules/gsap",
-            "main": "src/minified/TweenLite.min",
-            "resources": [
-              "Draggable.js",
-              "TweenLite.js"
-            ]
-          },
-          {
             "name": "jquery-contextmenu",
             "main": "dist/jquery.contextMenu.js",
             "path": "../node_modules/jquery-contextmenu",

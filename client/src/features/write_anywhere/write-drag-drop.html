@@ -5,18 +5,9 @@
         <require from="jquery-contextmenu/dist/jquery.contextMenu.min.css"></require>
 
     <button class="btn btn-outline-secondary" click.delegate="delegateToParent()">Save Changes </button>
-    <!-- <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeNoteContainerDraggableToggle()">
-        Note Container Draggable is ${draggableToggleNoteContainer?'on':'off'}
-    </button> -->
-    <button class="btn btn-outline-secondary" click.delegate="m.view.draggable.makeDraggableToggle()">
+    <button class="btn btn-outline-secondary">
         Draggable is ${draggableToggleNotes?'on':'off'}
     </button>
-    <!-- <button class="btn btn-outline-success" click.delegate="m.dataSharing.wordsAsDiv()">Words as Div </button> -->
-    <button 
-        class="btn btn-outline-success" 
-        click.delegate="conlog()"
-        style="width:50vw;">
-        Log Info </button>
 
     <!-- Width: ${noteCotainerScrollWidth} Left ${noteContainerScrollLeft} -->
         <div 
